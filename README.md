@@ -24,3 +24,8 @@ I will write this later
 ## How it will work
 
 Oh no, my mom call me to dinner, i make it later
+
+## SpotifyApi
+
+Since this is just my pet project, I want to implement everything myself, maybe not in the best way. Therefore, there is a file `/backend/spotify.py` inside. It implements the API class on top of `requests`.
+![Proof that code there are](https://sun9-41.userapi.com/impg/8u4KWMFZ8_JMJg45ihXz-kl2q1056F78T8x_xw/4ba-NWUiEkM.jpg?size=909x411&quality=96&sign=811ce404aff0ab0c13787f2bc4dc6e8f&type=album)

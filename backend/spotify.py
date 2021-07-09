@@ -6,6 +6,9 @@ from urllib.parse import quote
 
 
 class SpotifyAPI(object):
+    '''
+    Api class. No more documentation yet
+    '''
     acces_token = None
     acces_token_expires = datetime.datetime.now()
     acces_token_did_expire = True
@@ -39,7 +42,7 @@ class SpotifyAPI(object):
         headers = {
             'Authorization': f'Basic {self.get_client_creditales()}'
         }
-        r = rq.post(self.url, data=data, headers=headers)
+        r = rq.post(url, data=data, headers=headers)
         token_response = r.json()
         if r.status_code not in range(200, 299):
             raise Exception('Authentificate failed')
@@ -59,7 +62,7 @@ class SpotifyAPI(object):
         now = datetime.datetime.now()
         if expires < now or token == None:
             self.perform_auth()
-            return self.access_token
+            return self.acces_token
         return token
 
     def search(self, query: str, search_type: str = 'track') -> dict:
@@ -71,17 +74,13 @@ class SpotifyAPI(object):
         header = {
             'Authorization': f'Bearer {self.get_access_token()}'
         }
-
-        endpoint = 'https://api.spotify.com/v1/search'
-        data = quote(
-            {'q': f'{query}', 'type': f'{search_type}', 'market': 'RU'})
-        lookup = f'{endpoint}?{data}'
+        lookup = 'https://api.spotify.com/v1/search?q={}&type={}&market=RU'.format(query, search_type)
         r = rq.get(lookup, headers=header)
         if r.status_code in range(200, 299):
             return r.json()
         return {}
 
-    def get_oauth(self, access_token: str, redirected_uri: str) -> str:
+    def get_oauth(self, access_token: str, redirected_uri: str) -> dict:
         '''
         Makes a request for https://accounts.spotify.com/api/token and returns the user's oauth token.
         access_token - the token received by the corresponding request to https://accounts.spotify.com/api/token
@@ -101,11 +100,28 @@ class SpotifyAPI(object):
         }
 
         r = rq.post(uri, data, headers=headers)
-
+        print(access_token, 'starts on a?')
+        print(r.text)
         if r.status_code not in range(200, 299):
-            return ''
+            return {}
 
-        return json.loads(r.content.decode())['access_token']
+        return json.loads(r.content.decode())
+
+    def refresh_user(self, user, rederected_uri) -> str:
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if user.expires > now or user.oauth_token == '':
+            print(self.get_access_token(), 929292)
+            resp =  self.get_oauth(self.get_access_token(), rederected_uri)
+            print()
+            if resp:
+                user.oauth_token = resp.GET['access_token']
+                user.refresh_token = resp.GET['refresh_token']
+                user.expires = datetime.datetime.now()
+                return user
+            else: 
+                raise Exception('Something wrong, i can feel it')
+        return user
+        
 
     def get_user_playback(self, oauth_token: str) -> dict:
         '''
@@ -117,7 +133,7 @@ class SpotifyAPI(object):
             'Authorization': f'Bearer {oauth_token}'
         }
         r = rq.get(uri, headers=headers)
-
+        print(r.text)
         if r.status_code not in range(200, 299):
             return {}
 

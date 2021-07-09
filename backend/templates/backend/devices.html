@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Devices{% endblock %}
+{% block content %}
+    <h1>{{request.user}}</h1>
+    <h3> Aviable devices </h3>
+    <ul>
+        {% for d in devices_list %}
+            <p> {{ d.emoji }} {{ d.name }} {{ d.type }}</p>
+        {% endfor %}
+    </ul>
+{% endblock %}
