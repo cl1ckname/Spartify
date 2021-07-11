@@ -4,3 +4,4 @@
 backend/__pycache__
 spartify/__pycache__
 trash.ipynb
+db.sqlite3

@@ -11,7 +11,9 @@ class UserChangeForm(UserChangeForm):
 class Admin(UserAdmin):
     form = UserChangeForm
     model = User
-    list_display = ('id','username','oauth_token', 'expires')
+    list_display = ('id','username','oauth_token', 'refresh_token', 'expires')
     # fieldsets = UserAdmin.fieldsets + ((None, {'fields': ("oauth_token",)}),)
+
+
 
 admin.site.register(User, Admin)

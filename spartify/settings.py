@@ -126,12 +126,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'backend/static/'
 
 SOCIAL_AUTH_SPOTIFY_KEY = os.environ['SOCIAL_AUTH_SPOTIFY_KEY']  
 SOCIAL_AUTH_SPOTIFY_SECRET = os.environ['SOCIAL_AUTH_SPOTIFY_SECRET'] 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
-SOCIAL_AUTH_SPOTIFY_SCOPE = ['user-read-playback-state']
+SOCIAL_AUTH_SPOTIFY_SCOPE = ['user-read-playback-state', 'user-modify-playback-state']
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'
@@ -148,5 +148,8 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
-    'backend.pipeline.save_access_token', #save token on ligin,
+    'backend.pipeline.save_access_token', #save token on login,
 )
+
+QUEUE_SESSION_ID = 'queue'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = 300

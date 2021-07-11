@@ -4,6 +4,19 @@ import json
 import requests as rq
 from urllib.parse import quote
 
+from requests.models import Response
+
+def check_response(func):
+    def new_f(self, arg1, *args, **kwargs) -> dict:
+        r = func(self, arg1, *args, **kwargs)
+        if r.status_code not in range(200, 299):
+            return {}
+        content = r.content.decode()
+        if content:
+            return json.loads(r.content.decode())
+        return {}
+
+    return new_f
 
 class SpotifyAPI(object):
     '''
@@ -65,7 +78,8 @@ class SpotifyAPI(object):
             return self.acces_token
         return token
 
-    def search(self, query: str, search_type: str = 'track') -> dict:
+    @check_response
+    def search(self, query: str, search_type: str = 'track', *args, **kwargs) -> Response:
         '''
         Searches for a track, playlist, album or artist by title and returns json from https://api.spotify.com/v1/search.
         query - part of title
@@ -76,11 +90,10 @@ class SpotifyAPI(object):
         }
         lookup = 'https://api.spotify.com/v1/search?q={}&type={}&market=RU'.format(query, search_type)
         r = rq.get(lookup, headers=header)
-        if r.status_code in range(200, 299):
-            return r.json()
-        return {}
+        return r
 
-    def get_oauth(self, access_token: str, redirected_uri: str) -> dict:
+    @check_response
+    def get_oauth(self, access_token: str, redirected_uri: str) -> Response:
         '''
         Makes a request for https://accounts.spotify.com/api/token and returns the user's oauth token.
         access_token - the token received by the corresponding request to https://accounts.spotify.com/api/token
@@ -100,30 +113,25 @@ class SpotifyAPI(object):
         }
 
         r = rq.post(uri, data, headers=headers)
-        print(access_token, 'starts on a?')
-        print(r.text)
-        if r.status_code not in range(200, 299):
-            return {}
+        return r
 
-        return json.loads(r.content.decode())
+    @check_response
+    def refresh_token(self, refresh_token) -> Response:
+        uri = 'https://accounts.spotify.com/api/token'
+        headers = {
+            'Authorization': f'Basic {self.get_client_creditales()}',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        data = {
+            'grant_type':'refresh_token',
+            'refresh_token': refresh_token
+        }
+        r = rq.post(uri, data=data, headers=headers)
 
-    def refresh_user(self, user, rederected_uri) -> str:
-        now = datetime.datetime.now(datetime.timezone.utc)
-        if user.expires > now or user.oauth_token == '':
-            print(self.get_access_token(), 929292)
-            resp =  self.get_oauth(self.get_access_token(), rederected_uri)
-            print()
-            if resp:
-                user.oauth_token = resp.GET['access_token']
-                user.refresh_token = resp.GET['refresh_token']
-                user.expires = datetime.datetime.now()
-                return user
-            else: 
-                raise Exception('Something wrong, i can feel it')
-        return user
-        
+        return r
 
-    def get_user_playback(self, oauth_token: str) -> dict:
+    @check_response
+    def get_user_playback(self, oauth_token: str) -> Response:
         '''
         Makes a request for https://api.spotify.com/v1/me/player/currently-playing and returns the corresponding json.
         oauth_token - user token obtained using get_oauth()
@@ -133,17 +141,10 @@ class SpotifyAPI(object):
             'Authorization': f'Bearer {oauth_token}'
         }
         r = rq.get(uri, headers=headers)
-        print(r.text)
-        if r.status_code not in range(200, 299):
-            return {}
+        return r
 
-        content = r.content.decode()
-
-        if content:
-            return json.loads(r.content.decode())
-        return {}
-
-    def get_user_devices(self, oauth: str) -> dict:
+    @check_response
+    def get_user_devices(self, oauth: str) -> Response:
         '''
         Makes a request for https://api.spotify.com/v1/me/player/devices and returns the corresponding json.
         '''
@@ -155,7 +156,22 @@ class SpotifyAPI(object):
 
         r = rq.get(uri, headers=headers)
 
-        if r.status_code not in range(200, 299):
-            return {}
+        return r
 
-        return json.loads(r.content.decode())
+    @check_response
+    def get_track(self, id, oauth):
+        lookup = f'https://api.spotify.com/v1/tracks/{id}'
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {oauth}'
+        }
+        r = rq.get(lookup, headers=headers)
+        return r
+
+    def refresh_user(self, user) -> None:
+        if user.expires.replace(tzinfo=None) < datetime.datetime.now(tz=None):
+            refresh_data = self.refresh_token(user.refresh_token)
+            user.oauth_token = refresh_data['access_token']
+            user.expires = datetime.datetime.now(tz=None) + datetime.timedelta(seconds=refresh_data['expires_in'])
+            user.save()

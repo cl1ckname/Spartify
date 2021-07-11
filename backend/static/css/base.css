@@ -275,3 +275,23 @@ img.user-detail {
     font-style:italic;
     color:#ccc;
 }
+.tracks {
+    padding-top: 5px;
+    margin-left: 0;
+}
+.tracks ul {
+    padding-inline-start: 0;
+}
+.track {
+    height: 30px;
+    margin-top: 15px;
+    padding-left: 20px;
+    background-color: #efefef;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+.track :hover{
+    background: #12c064;
+}

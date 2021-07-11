@@ -11,7 +11,9 @@ from django.http import Http404, HttpResponse
 from .models import User
 import datetime
 import requests
+from .lobby import Queue
 from .spotify import SpotifyAPI
+from .forms import AddTrackForm
 
 api = SpotifyAPI(settings.SOCIAL_AUTH_SPOTIFY_KEY, settings.SOCIAL_AUTH_SPOTIFY_SECRET)
 
@@ -24,10 +26,17 @@ def user_login(request):
 @login_required
 def dashboard(request):
     user = get_object_or_404(User, username=request.user.username)
-    # user = api.refresh_user(user, 'http://localhost:8000')
-    # user.save()
+    queue = Queue(request)
+    api.refresh_user(user)
     token = user.oauth_token
     
+    print(request.method, 1333337)
+    if request.method == 'POST':
+        add_form = AddTrackForm(data = request.POST)
+        print(add_form.data, 1333337)
+        queue.add(request.POST['link'])
+            
+
     if len(token) > 10:
         track = api.get_user_playback(token)
         if track:
@@ -39,32 +48,21 @@ def dashboard(request):
             name = 'Nothing'
     else:
         name = 'No token!'
-    return render(request, 'backend/dashboard.html', {'section': 'dashboard', 'track': name})
-
-def test(request):
-    token = api.get_access_token()
-    ac = request.user
-    oauth = api.get_oauth(request.user.access_token, 'http://localhost:8000')
-    oauth = request.user.oauth_token
-    print(1)
-    buf = "-------Getting acces token---------<br>"
-    buf += api.get_access_token()
-    print(2)
-    buf += '<br>-------Search_track---------------<br>'
-    buf += str(len(str(api.search('OCB'))))
-    print(3)
-    buf += '<br>---------Getting oauth----------<br>'
-    buf += str(api.get_oauth(request.user.access_token, 'http://localhost:8000'))
-    print(4)
-    buf += '<br>---------Getting devices-----------<br>'
-    buf += str(api.get_user_devices(oauth))
-    print(5)
-    buf += '<br>---------Getting current track------------<br>'
-    buf += str(len(str(api.get_user_playback(oauth))))
-    return HttpResponse(buf)
+    form = AddTrackForm()
+    names = []
+    for i in queue.get_array():
+        try:
+            names.append(api.get_track(i, token)['name'])
+        except KeyError:
+            print(i)
+    return render(request, 'backend/dashboard.html', {'section': 'dashboard', 'track': name, 'form': form,
+                                                      'names': names, 'queue': queue, 'indicies': list(range(len(queue)))})
 
 @login_required
 def devices(request):
+    user = request.user
+    api.refresh_user(user)
+
     data = api.get_user_devices(request.user.oauth_token)
     devices_list = data['devices']
     for i in devices_list:
@@ -72,5 +70,9 @@ def devices(request):
             i['emoji'] = '⏩'
         else:
             i['emoji'] = '⏹'
-    print(devices_list)
     return render(request, 'backend/devices.html', {'devices_list': devices_list})
+
+
+
+def add_track(request, track_id):
+    track = get_object_or_404()

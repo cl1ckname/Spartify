@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<h1>{{request.user}}</h1>
-<p>Now playing: {{track}}</p>
+    <h1>{{request.user}}</h1>
+    <p>Now playing: {{track}}</p>
+    <form action="" method="post">
+        <label for="your_track">Enter link: </label>
+        {{ form.as_p }}
+        {% csrf_token %}
+        <input type="submit" value="ADD">
+    </form>
+    <div class = "tracks">
+        <ul>
+            {% for name in names %}
+                <div class = "track">
+                    <li> {{ name }} </li> <br>
+                </div>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}
