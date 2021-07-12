@@ -293,5 +293,9 @@ img.user-detail {
     align-items: center;
 }
 .track :hover{
-    background: #12c064;
+    background-color: #12c064;
+}
+
+.track p {
+    display: inline-flex;
 }

@@ -30,11 +30,9 @@ def dashboard(request):
     api.refresh_user(user)
     token = user.oauth_token
     
-    print(request.method, 1333337)
     if request.method == 'POST':
         add_form = AddTrackForm(data = request.POST)
-        print(add_form.data, 1333337)
-        queue.add(request.POST['link'])
+        queue.add(request.POST['link'], request.user.username)
             
 
     if len(token) > 10:
@@ -50,13 +48,17 @@ def dashboard(request):
         name = 'No token!'
     form = AddTrackForm()
     names = []
-    for i in queue.get_array():
-        try:
-            names.append(api.get_track(i, token)['name'])
-        except KeyError:
-            print(i)
+    for link in queue.get_links():
+        resp = api.get_track(link, token)
+        title = ''
+        for artist in resp['artists']:
+            title += artist['name'] + ', '
+        title = title[:-2] + ' - ' + resp['name']
+        names.append(title)
+
+    info = zip(names, queue.get_times(), queue.get_users())
     return render(request, 'backend/dashboard.html', {'section': 'dashboard', 'track': name, 'form': form,
-                                                      'names': names, 'queue': queue, 'indicies': list(range(len(queue)))})
+                                                      'info': info, 'queue': queue})
 
 @login_required
 def devices(request):
@@ -70,6 +72,7 @@ def devices(request):
             i['emoji'] = '⏩'
         else:
             i['emoji'] = '⏹'
+
     return render(request, 'backend/devices.html', {'devices_list': devices_list})
 
 

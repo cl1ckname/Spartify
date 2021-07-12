@@ -126,6 +126,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = 'backend/static/'
 
 SOCIAL_AUTH_SPOTIFY_KEY = os.environ['SOCIAL_AUTH_SPOTIFY_KEY']  
@@ -152,4 +154,6 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 QUEUE_SESSION_ID = 'queue'
-SESSION_EXPIRE_AT_BROWSER_CLOSE = 300
+SESSION_EXPIRE_AT_BROWSER_CLOSE = 0
+
+
