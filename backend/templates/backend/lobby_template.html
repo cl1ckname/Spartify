@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Lobby #{{id}}{% endblock %}
+{% block content %}
+    <h1> Lobby #{{id}} </h1>
+    {% for member in members %}
+        {{member.username}} <br>
+    {% endfor %}
+{% endblock %}

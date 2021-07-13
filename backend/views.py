@@ -1,19 +1,16 @@
 from django.shortcuts import render
 
-from urllib.parse import quote
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
+from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponse
-from .models import User
-import datetime
-import requests
+from .models import Lobby, User
 from .lobby import Queue
 from .spotify import SpotifyAPI
-from .forms import AddTrackForm
+from .forms import AddTrackForm, JoinLobby
 
 api = SpotifyAPI(settings.SOCIAL_AUTH_SPOTIFY_KEY, settings.SOCIAL_AUTH_SPOTIFY_SECRET)
 
@@ -66,16 +63,46 @@ def devices(request):
     api.refresh_user(user)
 
     data = api.get_user_devices(request.user.oauth_token)
+    if "devices" not in data.keys():
+        data['devices'] = ({'name': "Nothing", 'is_active': 0},)
     devices_list = data['devices']
     for i in devices_list:
         if i['is_active']:
             i['emoji'] = '⏩'
         else:
             i['emoji'] = '⏹'
-
     return render(request, 'backend/devices.html', {'devices_list': devices_list})
 
 
+@login_required
+def lobby(request):
 
-def add_track(request, track_id):
-    track = get_object_or_404()
+    return render(request, 'backend/lobby.html')
+
+@login_required
+def current_lobby(request, id):
+    user = request.user
+    try:
+        lobby = get_object_or_404(Lobby, id=id)
+
+    except Http404:
+        lobby = Lobby.objects.create(id = id, owner = user)
+        user.lobby_in = lobby
+        lobby.save()
+        user.save()
+    return HttpResponse("<h1> Nice. </h1>")
+
+
+class LobbyView(TemplateView):
+    template_name = "backend/lobby_template.html"
+    def get(self, request, lobby_id, *args, **kwargs):
+        this_lobby = Lobby.objects.get(id=lobby_id)
+        members = User.objects.filter(lobby_in=this_lobby)
+        form = JoinLobby()
+        print(form)
+        print(lobby_id)
+        if this_lobby:
+            return render(request, self.template_name, {'id': lobby_id, 'members': members, 'form': form})
+        else:
+            raise Http404
+    

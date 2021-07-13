@@ -4,6 +4,7 @@
     <head>
         <title>{% block title %}{% endblock %}</title>
         <link href="{% static "css/base.css" %}" rel="stylesheet">
+        {% block scripts %}{% endblock %}
     </head>
     <body>
         <a href="{% url "social:begin" "spotify" %}">Spotify</a>
@@ -14,11 +15,11 @@
                     <li {% if section == "dashboard" %} class="selected"{% endif %}>
                         <a href="{% url "dashboard" %}">My dashboard</a>
                     </li>
-                    <li {% if section == "images" %}class="selected"{% endif %}>
+                    <li {% if section == "devices" %}class="selected"{% endif %}>
                         <a href="{% url "devices" %}">Devices</a>
                     </li>
-                    <li {% if section == "people" %}class="selected"{% endif %}>
-                        <a href="#">People</a>
+                    <li {% if section == "lobby" %}class="selected"{% endif %}>
+                        <a href="lobby">Lobby</a>
                     </li>
                 </ul>
             {% endif %}

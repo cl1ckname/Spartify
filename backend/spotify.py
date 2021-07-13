@@ -155,7 +155,10 @@ class SpotifyAPI(object):
         }
 
         r = rq.get(uri, headers=headers)
-
+        print(oauth)
+        if r.status_code == 401:
+            print(r.text)
+        print(r.text)
         return r
 
     @check_response

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Lobby{% endblock %}
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"> </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
+    <script src="{% static "js/lobby_buttons.js" %}"> </script>
+{% endblock %}
+
+{% block content %}
+    <div id="buttons">
+        <button class='floating-button' id='create' >Create lobby</button>
+        <button class='floating-button' id='join'>Join lobby</button>
+    </div>
+    <div id="create_lobby">
+        <h1> It's your lobby! </h1>
+    </div>
+    <div id="join_lobby">
+        <h1> Join lobby </h1>
+        <p>Lobby PIN: {{track}}</p>
+         <form action="/lobby" method="get">
+            {{ form }}
+            {% csrf_token %}
+            <input type="submit" value="Join">
+        </form>
+    </div>
+{% endblock %}

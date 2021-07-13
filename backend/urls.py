@@ -14,5 +14,8 @@ urlpatterns = [
     path('login/', views.user_login, name = 'login'),
     path('logout/', auth_views.LogoutView.as_view(), name= 'logout'),
     path('', views.dashboard, name='dashboard'),
-    path('devices', views.devices, name='devices')
+    path('devices', views.devices, name='devices'),
+    path('lobby', views.lobby, name='lobby'),
+    path('lobby/<int:lobby_id>', views.LobbyView.as_view(), name="clobby")
+
 ]

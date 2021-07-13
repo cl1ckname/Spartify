@@ -12,6 +12,7 @@ I will write this later
 
  - [ ] Add the ability to add tracks to your queue using the site
  - [ ] Ability to create a lobby and get a pin code for it
+ - [ ] Registration for premium Spotify users and simple users 
  - [ ] Creating a beautiful frontend
  - [ ] Upload the application to stable hosting
  - [ ] Play music in big campaigns with ease!
