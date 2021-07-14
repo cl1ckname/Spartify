@@ -8,4 +8,4 @@ class DeleteTrackForm(forms.Form):
         super().__init__()
 
 class JoinLobby(forms.Form):
-    pin = forms.IntegerField(required=True, label="q", help_text="Ask your lobby owner the #PIN code")
+    pin = forms.IntegerField(required=True, label="Lobby PIN:", help_text="Ask your lobby owner the #PIN code")

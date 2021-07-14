@@ -17,8 +17,7 @@
     </div>
     <div id="join_lobby">
         <h1> Join lobby </h1>
-        <p>Lobby PIN: {{track}}</p>
-         <form action="/lobby" method="get">
+         <form action="/lobby_redirect" method="get">
             {{ form }}
             {% csrf_token %}
             <input type="submit" value="Join">

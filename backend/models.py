@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.shortcuts import redirect
 
 
 
@@ -17,7 +18,9 @@ class User(AbstractUser):
 class Lobby(models.Model):
     id = models.IntegerField(primary_key=True)
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
+    history = models.JSONField(default=[])
 
     def add(self, user):
         user.lobby_in = self
         user.save()
+
