@@ -18,6 +18,6 @@ urlpatterns = [
     path('devices', views.devices, name='devices'),
     path('lobby', views.lobby, name='lobby'),
     path('lobby/<int:lobby_id>', login_required(views.LobbyView.as_view()), name="clobby"),
-    path('lobby_redirect', views.lobby_redirect, name='lobby_redirect')
+    # path('lobby_redirect', views.lobby_redirect, name='lobby_redirect')
 
 ]

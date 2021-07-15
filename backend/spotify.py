@@ -155,10 +155,6 @@ class SpotifyAPI(object):
         }
 
         r = rq.get(uri, headers=headers)
-        print(oauth)
-        if r.status_code == 401:
-            print(r.text)
-        print(r.text)
         return r
 
     @check_response
@@ -170,6 +166,19 @@ class SpotifyAPI(object):
             'Authorization': f'Bearer {oauth}'
         }
         r = rq.get(lookup, headers=headers)
+        return r
+
+    @check_response
+    def add_queue(self, uri:str, oauth:str):
+        endpoint = f'https://api.spotify.com/v1/me/player/queue?uri={quote("spotify:track:"+uri, safe="")}'
+        headers = {
+            'Authorization': f'Bearer {oauth}'
+        }
+        data = {
+            'uri': 'spotify:track:'+uri,
+        }
+        r = rq.post(endpoint, headers=headers, data=data)
+        print(r.text)
         return r
 
     def refresh_user(self, user) -> None:

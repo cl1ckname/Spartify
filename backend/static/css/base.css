@@ -123,7 +123,7 @@ input[type=submit], a.button {
     color:#cc0033;
     float:left;
     clear:both;
-    padding-left:10px;
+    padding-left: 0;
 }
 .helptext {
     margin:0 0 20px 0;
@@ -260,6 +260,7 @@ input[type=submit], a.button {
 #members{
     width: 40%;
     min-height: 150px;
+    height: min-content;
 }
 #history{
     width: 40%;

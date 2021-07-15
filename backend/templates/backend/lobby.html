@@ -17,7 +17,7 @@
     </div>
     <div id="join_lobby">
         <h1> Join lobby </h1>
-         <form action="/lobby_redirect" method="get">
+         <form action="/lobby" method="post">
             {{ form }}
             {% csrf_token %}
             <input type="submit" value="Join">

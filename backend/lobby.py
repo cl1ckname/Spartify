@@ -10,7 +10,6 @@ class Queue:
         if not queue:
             queue = self.session[settings.QUEUE_SESSION_ID] = {'links': [], 'times': [], 'users': []}
         self.queue = queue
-        print(queue)
     
     def add(self, link, user):
         self.count += 1

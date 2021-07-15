@@ -3,9 +3,13 @@
 {% block content %}
     <h1>{{request.user}}</h1>
     <h3> Aviable devices </h3>
-    <ul>
-        {% for d in devices_list %}
-            <p> {{ d.emoji }} {{ d.name }} {{ d.type }}</p>
-        {% endfor %}
-    </ul>
+    <form action="devices" method="post">
+        <ul>
+            {% for d in devices_list %}
+                <p> {{ d.emoji }} {{ d.name }} {{ d.type }} <input type="radio" value="{{d.name}}" id="{{d.name}}" name="device"> </p>
+            {% endfor %}
+        </ul>
+        <input type="submit" value="Set">
+        {% csrf_token %}
+    </form>
 {% endblock %}
