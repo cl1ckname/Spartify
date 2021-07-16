@@ -3,7 +3,7 @@
 import re
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import Http404
-from backend.models import Lobby
+from lobby.models import Lobby
 
 
 def track_full_name(track: dict) -> str:

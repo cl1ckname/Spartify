@@ -1,21 +1,12 @@
-from datetime import datetime
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.http import Http404, HttpResponse
-import requests
-from backend.utils import track_full_name, clear_track, _add_to_lobby, _make_devices_list
-from .models import Lobby, User
-from .lobby import Queue
-from .spotify import SpotifyAPI
-from .forms import AddTrackForm, JoinLobby
-
-
-api = SpotifyAPI(settings.SOCIAL_AUTH_SPOTIFY_KEY,
-                 settings.SOCIAL_AUTH_SPOTIFY_SECRET)
+from backend.utils import track_full_name, clear_track, _make_devices_list
+from .models import User
+from lobby.lobby import Queue
+from .spotify import api
+from .forms import AddTrackForm
 
 
 def user_login(request):
@@ -69,87 +60,3 @@ def devices(request):
 
     return render(request, 'backend/devices.html', {'devices_list': devices_list})
 
-
-@login_required
-def lobby(request):
-    user = request.user
-    if request.method == "POST":
-        pin = request.POST['pin']
-        form = JoinLobby(data=request.POST)
-        if form.is_valid():
-            _add_to_lobby(user, pin)
-            return redirect('/lobby/'+pin)
-    else:
-        form = JoinLobby()
-    if not user.lobby_in:
-        return render(request, 'backend/lobby.html', {'form': form})
-    else:
-        return redirect('lobby/'+str(user.lobby_in.id))
-
-
-class LobbyView(TemplateView):
-    ''' Lobby Page View '''
-    template_name = "backend/lobby_template.html"
-    this_lobby = None
-    members = None
-    owner = None
-    form = None
-
-    def get(self, request, lobby_id=0, *args, **kwargs) -> HttpResponse:
-        ''' Creates a form and returns a page render if the request method is GET '''
-        self.form = AddTrackForm()
-        self.set_data(request, lobby_id)
-        return self.display_page(request)
-
-    def post(self, request, lobby_id=0, *args, **kwargs) -> HttpResponse:
-        ''' Creates a form and validates it and also returns a page render if the request method is POST'''
-        link = request.POST.get('link')
-        self.set_data(request, lobby_id)
-        token = request.user.oauth_token
-        data = request.POST
-        if link:
-            self.form = AddTrackForm(data=data)
-            if self.form.is_valid():
-                uri = clear_track(link)
-                api.add_queue(uri, token)
-                self.add_history(request, data)
-        else:
-            id_to_delete = request.POST.get('delete')
-            if id_to_delete:
-                if int(id_to_delete) == self.this_lobby.id:
-                    self.this_lobby.delete()
-                    return redirect('/lobby')
-
-        return self.display_page(request)
-
-    def set_data(self, request, lobby_id) -> None:
-        ''' Sets the view data according to the request and the lobby '''
-        self.this_lobby = Lobby.objects.get(id=lobby_id)
-        self.members = User.objects.filter(lobby_in=self.this_lobby)
-        self.owner = self.this_lobby.owner
-        api.refresh_user(self.owner)
-
-    def display_page(self, request) -> HttpResponse:
-        ''' Collects the view fields in the HttpResponse and checks the user's access to the lobby '''
-        track = api.get_user_playback(self.owner.oauth_token)
-        history = self.this_lobby.history
-
-        name = track_full_name(track)
-
-        if request.user.lobby_in != self.this_lobby:
-            return HttpResponse("Forbidden")
-
-        if self.this_lobby:
-            return render(request, self.template_name, {'id': self.this_lobby.id, 'members': self.members, 'track': name, 'form': self.form,
-                                                        'owner': self.owner.username, 'history': history, 'is_owner': (self.owner==self.request.user)})
-        else:
-            raise Http404
-
-    def add_history(self, request, data):
-        ''' Adds track information to the lobby history '''
-        track_id = clear_track(data['link'])
-        track_raw = api.get_track(track_id, self.owner.oauth_token)
-        to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
-        ).strftime('%H:%M'), 'user': request.user.username}
-        self.this_lobby.history.append(to_json)
-        self.this_lobby.save()

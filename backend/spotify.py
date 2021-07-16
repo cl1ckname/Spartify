@@ -1,6 +1,7 @@
 import base64
 import datetime
 import json
+from django.conf import settings
 import requests as rq
 from urllib.parse import quote
 
@@ -190,3 +191,6 @@ class SpotifyAPI(object):
             user.oauth_token = refresh_data['access_token']
             user.expires = datetime.datetime.now(tz=None) + datetime.timedelta(seconds=refresh_data['expires_in'])
             user.save()
+
+api = SpotifyAPI(settings.SOCIAL_AUTH_SPOTIFY_KEY,
+                 settings.SOCIAL_AUTH_SPOTIFY_SECRET)

@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm
 from django.conf import settings
-from .models import User, Lobby
+from .models import User
+from lobby.models import Lobby
 
 class UserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
