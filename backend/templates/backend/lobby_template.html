@@ -9,13 +9,21 @@
 
     <div class="container">
         <div class="row" id = "lobby_container">
-            <div class="col-12 pb-2 mb-3">
+            <div class="col-11 pb-2 mb-3">
                 <p>Now playing: {{track}}</p>
                 <form action="{{id}}" method="post">
                     {{ form.as_p }}
                     {% csrf_token %}
                     <input type="submit" value="ADD">
                 </form>
+            </div>
+            <div class="col-1 pb-2 mb-3" id = "delete">
+                {% if is_owner %}
+                    <form action = "{{id}}" method="post">
+                        {% csrf_token %}
+                        <button name="delete" value="{{id}}" type="submit">Delete</button>
+                    </form>
+                {% endif %}
             </div>
         </div>
         <div class="row justify-content-between" id="lobby_container">

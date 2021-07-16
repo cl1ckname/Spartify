@@ -31,7 +31,7 @@ class LinkField(forms.CharField):
     ''' Field for Spotify tracks links'''
     def validate(self, value):
         try:
-            id = clear_track(value)
+            clear_track(value)
         except ValueError:
             raise ValidationError("Incorrect link")
         return value

@@ -1,6 +1,8 @@
 # Spartify
 
-Spartify is a collaborative queue management service on  ![Spotify logo](https://img.shields.io/badge/Spotify-link-green?url=https%3A%2F%2Fwww.spotify.com%2F)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/cl1ckname/Spartify.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/cl1ckname/Spartify/context:python)
+
+Spartify is a collaborative queue management service on  [Spotify](https://www.spotify.com/)
 
 ## Why?
 
@@ -43,5 +45,6 @@ If you want to help the project, then I'm looking for:
 * just not indifferent
 
 ### Contacts
-![vk.com/clickname](https://img.shields.io/static/v1?label=vk.com&message=clickname&color=blue&style=social&url=https://vk.com/clickname)
-![https://twitter.com/Cl1ckName](https://img.shields.io/twitter/url?label=Twitter&style=social&url=https%3A%2F%2Ftwitter.com%2FCl1ckName)
+[![https://vk.com/clickname](https://img.shields.io/badge/вконтакте-%232E87FB.svg?&style=for-the-badge&logo=vk&logoColor=white)](https://vk.com/clickname)
+[![https://twitter.com/Cl1ckName](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/Cl1ckName)
+[![20002mc@gmail.com](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:20002mc@gmail.com)

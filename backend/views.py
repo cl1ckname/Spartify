@@ -1,5 +1,4 @@
 from datetime import datetime
-import re
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.generic import TemplateView
@@ -7,9 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponse
-from django.core.exceptions import ObjectDoesNotExist
 import requests
-from backend.utils import track_full_name, clear_track
+from backend.utils import track_full_name, clear_track, _add_to_lobby, _make_devices_list
 from .models import Lobby, User
 from .lobby import Queue
 from .spotify import SpotifyAPI
@@ -61,20 +59,14 @@ def dashboard(request):
 def devices(request):
     user = request.user
     api.refresh_user(user)
-    print(user.oauth_token)
 
     if request.method == "POST":
         print(request.POST)
 
     data = api.get_user_devices(request.user.oauth_token)
-    if "devices" not in data.keys():
-        data['devices'] = ({'name': "Nothing", 'is_active': 0},)
-    devices_list = data['devices']
-    for i in devices_list:
-        if i['is_active']:
-            i['emoji'] = '⏩'
-        else:
-            i['emoji'] = '⏹'
+
+    devices_list = _make_devices_list(data)
+
     return render(request, 'backend/devices.html', {'devices_list': devices_list})
 
 
@@ -85,8 +77,7 @@ def lobby(request):
         pin = request.POST['pin']
         form = JoinLobby(data=request.POST)
         if form.is_valid():
-            user.lobby_in = Lobby.objects.get(id=pin)
-            user.save()
+            _add_to_lobby(user, pin)
             return redirect('/lobby/'+pin)
     else:
         form = JoinLobby()
@@ -112,15 +103,22 @@ class LobbyView(TemplateView):
 
     def post(self, request, lobby_id=0, *args, **kwargs) -> HttpResponse:
         ''' Creates a form and validates it and also returns a page render if the request method is POST'''
-        data = request.POST
+        link = request.POST.get('link')
         self.set_data(request, lobby_id)
-        self.form = AddTrackForm(data=data)
-        link = requests.POST['link']
         token = request.user.oauth_token
-        if self.form.is_valid():
-            uri = clear_track(link)
-            api.add_queue(uri, token)
-            self.add_history(request, data)
+        data = request.POST
+        if link:
+            self.form = AddTrackForm(data=data)
+            if self.form.is_valid():
+                uri = clear_track(link)
+                api.add_queue(uri, token)
+                self.add_history(request, data)
+        else:
+            id_to_delete = request.POST.get('delete')
+            if id_to_delete:
+                if int(id_to_delete) == self.this_lobby.id:
+                    self.this_lobby.delete()
+                    return redirect('/lobby')
 
         return self.display_page(request)
 
@@ -143,7 +141,7 @@ class LobbyView(TemplateView):
 
         if self.this_lobby:
             return render(request, self.template_name, {'id': self.this_lobby.id, 'members': self.members, 'track': name, 'form': self.form,
-                                                        'owner': self.owner.username, 'history': history})
+                                                        'owner': self.owner.username, 'history': history, 'is_owner': (self.owner==self.request.user)})
         else:
             raise Http404
 

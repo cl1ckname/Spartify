@@ -37,7 +37,7 @@ class SpotifyAPI(object):
         '''
         Returns a base64 encoded string
         '''
-        if self.client_secret == None or self.client_id == None:
+        if self.client_secret is None or self.client_id is None:
             raise Exception("You must set client_id and client_secret")
         client_creds = f'{self.client_id}:{self.client_secret}'
         client_creds_b64 = base64.b64encode(client_creds.encode())
@@ -73,7 +73,7 @@ class SpotifyAPI(object):
         token = self.acces_token
         expires = self.acces_token_expires
         now = datetime.datetime.now()
-        if expires < now or token == None:
+        if expires < now or token is None:
             self.perform_auth()
             return self.acces_token
         return token
@@ -159,6 +159,7 @@ class SpotifyAPI(object):
 
     @check_response
     def get_track(self, id, oauth):
+        ''' Makes a request for https://api.spotify.com/v1/tracks/ and returns the information about track'''
         lookup = f'https://api.spotify.com/v1/tracks/{id}'
         headers = {
             'Accept': 'application/json',
@@ -170,6 +171,7 @@ class SpotifyAPI(object):
 
     @check_response
     def add_queue(self, uri:str, oauth:str):
+        ''' Add track in user player queue '''
         endpoint = f'https://api.spotify.com/v1/me/player/queue?uri={quote("spotify:track:"+uri, safe="")}'
         headers = {
             'Authorization': f'Bearer {oauth}'
@@ -182,6 +184,7 @@ class SpotifyAPI(object):
         return r
 
     def refresh_user(self, user) -> None:
+        ''' Checks if the user's token has expired and refreshes it if necessary '''
         if user.expires.replace(tzinfo=None) < datetime.datetime.now(tz=None):
             refresh_data = self.refresh_token(user.refresh_token)
             user.oauth_token = refresh_data['access_token']

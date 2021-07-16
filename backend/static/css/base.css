@@ -278,3 +278,19 @@ input[type=submit], a.button {
 #history ul{
     padding-left: 0;
 }
+#delete{
+    padding: 0;
+    display: flex;
+    align-self: flex-end;
+}
+#delete button{
+    position: relative;
+    bottom: 0;
+    font-weight: bold;
+    background: #c01212;
+    color: #fff;
+    padding: 10px 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    border: none;
+}
