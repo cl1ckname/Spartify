@@ -3,8 +3,9 @@
 {% block title %}Lobby #{{id}}{% endblock %}
 {% block content %}
     <div id="headers">
-        <h1> Lobby #{{id}} </h1>
+        <h1> Lobby #{{lobby.id}} </h1>
         <h1 style="color: #999999; margin-left: 5%"> Owner - {{owner}} </h1>
+        <h1 id="members_count">Members: {{lobby.num_members}}</h1>
     </div>
 
     <div class="container">

@@ -1,3 +1,4 @@
 from django.contrib import admin
+from lobby.models import Lobby
 
-# Register your models here.
+admin.site.register(Lobby)

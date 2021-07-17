@@ -25,3 +25,9 @@ class JoinLobby(forms.Form):
     pin = PinField(required=True, label="Lobby PIN:", help_text="Ask your lobby owner the #PIN code")
     class Meta:
         db_table = "lobby"
+
+class LobbyForm(forms.ModelForm):
+    
+    class Meta:
+        model = Lobby
+        fields = ("max_members",)

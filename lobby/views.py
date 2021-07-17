@@ -1,4 +1,5 @@
 from datetime import datetime
+from random import randint
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
@@ -6,7 +7,7 @@ from django.views.generic.base import TemplateView
 from backend.utils import track_full_name, clear_track, _add_to_lobby
 from .models import Lobby, User
 from backend.forms import AddTrackForm
-from lobby.forms import JoinLobby
+from lobby.forms import JoinLobby, LobbyForm
 from backend.spotify import api
 
 
@@ -14,15 +15,26 @@ from backend.spotify import api
 def lobby(request):
     user = request.user
     if request.method == "POST":
-        pin = request.POST['pin']
-        form = JoinLobby(data=request.POST)
-        if form.is_valid():
-            _add_to_lobby(user, pin)
-            return redirect('/lobby/'+pin)
+        pin = request.POST.get('pin')
+        max_members = request.POST.get('max_members')
+        if pin:
+            form = JoinLobby(data=request.POST)
+            if form.is_valid():
+                _add_to_lobby(user, pin)
+                return redirect('/lobby/'+pin)
+        elif max_members:
+            _lobby = Lobby(id = randint(0,9999), owner = user, max_members=max_members, num_members=1)
+            _lobby.save()
+            id = _lobby.id
+            user.lobby_in = _lobby
+            user.save()
+            return redirect(f'/lobby/{id}')
+        else:
+            return render(request, 'lobby/lobby.html', {'form': JoinLobby(), 'lobby_form': LobbyForm()})
     else:
         form = JoinLobby()
     if not user.lobby_in:
-        return render(request, 'lobby/lobby.html', {'form': form})
+        return render(request, 'lobby/lobby.html', {'form': form, 'lobby_form': LobbyForm()})
     else:
         return redirect('lobby/'+str(user.lobby_in.id))
 
@@ -80,7 +92,7 @@ class LobbyView(TemplateView):
             return HttpResponse("Forbidden")
 
         if self.this_lobby:
-            return render(request, self.template_name, {'id': self.this_lobby.id, 'members': self.members, 'track': name, 'form': self.form,
+            return render(request, self.template_name, {'lobby': self.this_lobby, 'members': self.members, 'track': name, 'form': self.form,
                                                         'owner': self.owner.username, 'history': history, 'is_owner': (self.owner==self.request.user)})
         else:
             raise Http404

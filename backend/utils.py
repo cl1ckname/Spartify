@@ -1,8 +1,6 @@
 ''' Instruments that i use more than once '''
 
 import re
-from django.core.exceptions import ObjectDoesNotExist
-from django.http.response import Http404
 from lobby.models import Lobby
 
 
@@ -34,7 +32,9 @@ def clear_track(link: str) -> str:
 
 
 def _add_to_lobby(user, lobby_pin):
-    user.lobby_in = Lobby.objects.get(id=lobby_pin)
+    lobby = Lobby.objects.get(id=lobby_pin)
+    lobby.num_members += 1
+    user.lobby_in = lobby
     user.save()
 
 

@@ -13,7 +13,12 @@
         <button class='floating-button' id='join'>Join lobby</button>
     </div>
     <div id="create_lobby">
-        <h1> It's your lobby! </h1>
+        <h1> Creating lobby </h1>
+        <form action="/lobby/" method="post">
+            {{ lobby_form }}
+            {% csrf_token %}
+            <input type="submit" value="Join">
+        </form>
     </div>
     <div id="join_lobby">
         <h1> Join lobby </h1>

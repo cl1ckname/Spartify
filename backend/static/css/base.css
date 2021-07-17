@@ -294,3 +294,8 @@ input[type=submit], a.button {
     text-transform: uppercase;
     border: none;
 }
+#members_count
+{
+    margin-left: auto;
+    color: #999999;
+}
