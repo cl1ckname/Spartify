@@ -1,0 +1,145 @@
+#buttons{
+    display: flex;
+    margin-top: 40vh;
+    padding-left: 15%;
+    padding-right: 15%;
+    justify-content: space-between;
+}
+
+.floating-button {
+    text-decoration: none;
+    display: inline-block;
+    width: 220px;
+    height: 55px;
+    line-height: 45px;
+    border-radius: 45px;
+    margin: 10px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 3px;
+    font-weight: 600;
+    color: #524f4e;
+    background: white;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, .1);
+    transition: .3s;
+}
+.floating-button:hover {
+    background: #1DB954;
+    box-shadow: 0 15px 20px rgba(46, 229, 157, .4);
+    color: white;
+    transform: translateY(-7px);
+}
+
+#create_lobby{
+    display: none;
+}
+#join_lobby{
+    display: none;
+}
+#lobby_container{
+    display: flex;
+    justify-content: space-between;
+}
+#members{
+    box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+    width: 98%;
+}
+#history{
+    box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+    width: 98%;
+}
+#members{
+    min-height: 150px;
+    height: min-content;
+}
+#history{
+    width: 98%;
+    min-height: 150px;
+    height: min-content;
+}
+#headers{
+    display: flex;
+    border-bottom: 1px solid #bbb;
+}
+#headers h1{
+    margin-bottom: 0;
+    border-bottom: hidden;
+}
+#history ul{
+    padding-left: 0;
+}
+#delete{
+    padding: 0;
+    display: flex;
+    align-self: flex-end;
+}
+#delete button{
+    position: relative;
+    bottom: 0;
+    font-weight: bold;
+    background: #c01212;
+    color: #fff;
+    padding: 10px 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    border: none;
+}
+#members_count
+{
+    margin-left: auto;
+    color: #999999;
+}
+
+#switch {
+    width: 100%;
+    background: #ddd;
+    display: flex;
+    margin-top: 0.5em;
+}
+#switch button{
+    width: 50%;
+    border: none;
+}
+#switch_box{
+    display: flex;
+    width: 210%;
+}
+#switch_box .row{
+    width: 100%
+}
+#settings {
+    padding-left: 10%;
+    transform: translate(0, 0);
+    transition: transform 1000ms;
+}
+#overview {
+    margin-left: 0;
+    transform: translate(0, 0);
+    transition: transform 1000ms;
+}
+#settings.moveLeft{
+    transform: translate(-115%, 0);
+}
+#overview.moveLeft{
+    transform: translate(-115%, 0);
+}
+#members-head {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 2%;
+    margin-bottom: 0.4em;
+}
+#members-head button{
+    border: 0;
+    background: #c01212;
+    color: #fff;
+    font-weight: bold;
+}
+.ov-form {
+    overflow: visible !important;
+}
+.member {
+    display: flex;
+}

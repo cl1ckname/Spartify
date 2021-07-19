@@ -11,6 +11,6 @@ class User(AbstractUser):
     refresh_token = models.CharField('refresh_token', max_length=250)
     expires = models.DateTimeField('expires', auto_now_add=True)
     device_id = models.CharField('device_id', max_length=50)
-    lobby_in = models.ForeignKey('lobby.Lobby', null=True ,on_delete=models.SET_NULL)
+    lobby_in = models.ForeignKey('lobby.Lobby', blank=True ,null=True ,on_delete=models.SET_NULL)
 
 

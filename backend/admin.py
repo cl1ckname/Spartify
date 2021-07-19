@@ -11,7 +11,9 @@ class Admin(UserAdmin):
     form = UserChangeForm
     model = User
     list_display = ('id','username','oauth_token', 'refresh_token', 'expires', 'lobby_in')
-    # fieldsets = UserAdmin.fieldsets + ((None, {'fields': ("oauth_token",)}),)
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('lobby_in',)}),
+    )
 
 
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Lobby{% endblock %}
-{% block scripts %}
+{% block additions %}
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"> </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
     <script src="{% static "js/lobby_buttons.js" %}"> </script>
@@ -17,12 +17,19 @@
         <form action="/lobby/" method="post">
             {{ lobby_form }}
             {% csrf_token %}
-            <input type="submit" value="Join">
+            <input style="margin-top: 1em" type="submit" value="Create">
         </form>
     </div>
     <div id="join_lobby">
         <h1> Join lobby </h1>
          <form action="/lobby/" method="post">
+            {% if error %}
+                <ul class="errorlist">
+                    <li>
+                        "{{ error }}"
+                    </li>
+                </ul>
+            {% endif %}
             {{ form }}
             {% csrf_token %}
             <input type="submit" value="Join">

@@ -1,54 +1,81 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Lobby #{{id}}{% endblock %}
+{% block additions %}
+    <link href="{% static "css/lobby.css" %}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
+    <script src="{% static "js/switch-menu.js" %}"> </script>
+{% endblock %}
 {% block content %}
     <div id="headers">
         <h1> Lobby #{{lobby.id}} </h1>
         <h1 style="color: #999999; margin-left: 5%"> Owner - {{owner}} </h1>
         <h1 id="members_count">Members: {{lobby.num_members}}</h1>
     </div>
-
-    <div class="container">
-        <div class="row" id = "lobby_container">
-            <div class="col-11 pb-2 mb-3">
-                <p>Now playing: {{track}}</p>
-                <form action="{{id}}" method="post">
-                    {{ form.as_p }}
-                    {% csrf_token %}
-                    <input type="submit" value="ADD">
-                </form>
-            </div>
-            <div class="col-1 pb-2 mb-3" id = "delete">
-                {% if is_owner %}
-                    <form action = "{{id}}" method="post">
-                        {% csrf_token %}
-                        <button name="delete" value="{{id}}" type="submit">Delete</button>
-                    </form>
-                {% endif %}
-            </div>
+    {% if is_owner %}
+        <div id = "switch">
+            <button style="background: #bbb"> Overview </button>
+            <button> Settings </button>
         </div>
-        <div class="row justify-content-between" id="lobby_container">
-            <div class="col-md-6">
-                <h3> Members </h3>
-                <div id="members">
-                    {% for member in members %}
-                        {{member.username}} <br>
-                    {% endfor %}
+    {% endif %}
+    <div id="switch_box">
+        <div class="row">
+            <div class="container col-6" id="overview">
+                <div class="row" id = "lobby_container">
+                    <div class="col-11 pb-2 mb-3">
+                        <p>Now playing: {{track}}</p>
+                        <form action="{{id}}" method="post">
+                            {{ form.as_p }}
+                            {% csrf_token %}
+                            <input type="submit" value="ADD">
+                        </form>
+                    </div>
+                    <div class="col-1 pb-2 mb-3" id = "delete">
+                        {% if is_owner %}
+                            <form action = "{{id}}" method="post">
+                                {% csrf_token %}
+                                <button name="delete" value="{{lobby.id}}" type="submit">Delete</button>
+                            </form>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <h3> History </h3>
-                <div id="history">
-                    <ul>
-                        {% for song in history %}
-                            <div class = "track">
-                                <li> <p> {{ song.title }} </p> <p> {{ song.time }} </p> <p> by {{ song.user }} </p>  </li>
+                <div class="row justify-content-between" id="lobby_container">
+                    <div class="col-md-6">
+                        <form class = "ov-form" action = "" method="post">
+                            {% csrf_token %}
+                            <div id="members-head">
+                                <h3> Members </h3>
+                                <button id="remove-button" type="submit">REMOVE</button>
                             </div>
-                        {% endfor %}
-                    </ul>
-                </div>
+                            <div id="members">
+                                {% for member in members %}
+                                    <div class="member">
+                                        <p> {{member.username}} </p> <input type="checkbox" name = "to_delete" value = "{{member.id}}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <h3> History </h3>
+                        <div id="history">
+                            <ul>
+                                {% for song in history %}
+                                    <div class = "track">
+                                        <li> <p> {{ song.title }} </p> <p> {{ song.time }} </p> <p> by {{ song.user }} </p>  </li>
+                                    </div>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div> 
             </div>
-        </div> 
+            {% if is_owner%}
+                <div class="container col-6" id="settings">
+                    <h2>Ведуться работы!</h2>
+                    <img src="https://psv4.userapi.com/c532036/u194600499/docs/d12/6981c656ea85/rasstupites_vedutsya_palochnye_raboty.gif?extra=Pk2JRMQSlpFy-FKvXzTucys1Lsy-dRFhZRFN3eIGRTv6qJ86kxUGBsLSup-BSND0OF7aP8G-TDWkC-z5k3e6DhIrV5dFRdbO2k0X0lGOUDpECptjn6IerhCdtPDAWeq01BmEDgwbNZWUG10BMGBH7yGtnCQ">
+                </div>
+            {% endif %}
+        </div>
     </div>
-
 {% endblock %}

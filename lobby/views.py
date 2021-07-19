@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
 from django.views.generic.base import TemplateView
-from backend.utils import track_full_name, clear_track, _add_to_lobby
+from backend.utils import LobbyIsFull, track_full_name, clear_track, _add_to_lobby
 from .models import Lobby, User
 from backend.forms import AddTrackForm
 from lobby.forms import JoinLobby, LobbyForm
@@ -20,8 +20,14 @@ def lobby(request):
         if pin:
             form = JoinLobby(data=request.POST)
             if form.is_valid():
-                _add_to_lobby(user, pin)
-                return redirect('/lobby/'+pin)
+                try:
+                    _add_to_lobby(user, pin)
+                    return redirect('/lobby/'+pin)
+                except LobbyIsFull as e:
+                    data = {'form': JoinLobby(), 'lobby_form': LobbyForm(), 'error': "aboba"}
+                    print(str(data))
+                    render(request, 'lobby/lobby.html', data)
+
         elif max_members:
             _lobby = Lobby(id = randint(0,9999), owner = user, max_members=max_members, num_members=1)
             _lobby.save()
@@ -30,7 +36,7 @@ def lobby(request):
             user.save()
             return redirect(f'/lobby/{id}')
         else:
-            return render(request, 'lobby/lobby.html', {'form': JoinLobby(), 'lobby_form': LobbyForm()})
+            return render(request, 'lobby/lobby.html', {'form': JoinLobby(), 'lobby_form': LobbyForm(), })
     else:
         form = JoinLobby()
     if not user.lobby_in:
@@ -55,16 +61,22 @@ class LobbyView(TemplateView):
 
     def post(self, request, lobby_id=0, *args, **kwargs) -> HttpResponse:
         ''' Creates a form and validates it and also returns a page render if the request method is POST'''
-        link = request.POST.get('link')
+        data = dict(request.POST)
+        link = data.get('link')
+        to_delete = data.get('to_delete')
         self.set_data(request, lobby_id)
         token = request.user.oauth_token
-        data = request.POST
         if link:
             self.form = AddTrackForm(data=data)
             if self.form.is_valid():
                 uri = clear_track(link)
                 api.add_queue(uri, token)
                 self.add_history(request, data)
+        elif to_delete:
+            for id in to_delete:
+                user = User.objects.get(id=int(id))
+                user.lobby_in = None
+                user.save()
         else:
             id_to_delete = request.POST.get('delete')
             if id_to_delete:
