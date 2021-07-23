@@ -21,6 +21,7 @@ Oh no, my mom call me to dinner, i make it later
  - [ ] Upload the application to stable hosting
  - [ ] Play music in big campaigns with ease!
  - [ ] Build the application into a Docker container
+ - [ ] Realize API
  - [ ] ~~Make a lot of money~~
     - [ ] ~~Make a some money~~
         - [x] ~~Make a little money~~

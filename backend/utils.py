@@ -1,13 +1,6 @@
 ''' Instruments that i use more than once '''
 
 import re
-from lobby.models import Lobby
-
-class LobbyIsFull(Exception):
-    def __init__(self, max_members, *args):
-        self.max_members = max_members
-    def __str__(self):
-        return f"Lobby is full! Max members: {self.max_members}"
 
 def track_full_name(track: dict) -> str:
     ''' makes a good string - song title 
@@ -36,20 +29,8 @@ def clear_track(link: str) -> str:
     return result.group(2)
 
 
-def _add_to_lobby(user, lobby_pin):
-    """ Add user to lobby if it possible"""
-    lobby = Lobby.objects.get(id=lobby_pin)
-    if lobby.num_members < lobby.max_members:
-        lobby.num_members += 1
-        user.lobby_in = lobby
-        user.save()
-        lobby.save()
-    else:
-        raise LobbyIsFull(lobby.max_members)
-
-
 def _make_devices_list(data) -> dict:
-    """ makes pretty device list """
+    """ Makes pretty device list """
     if "devices" not in data.keys():
         devices_list = ({'name': "Nothing", 'is_active': 0},)
     else:

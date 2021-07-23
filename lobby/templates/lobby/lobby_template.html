@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Lobby #{{id}}{% endblock %}
+{% block title %}Lobby #{{lobby.id}}{% endblock %}
 {% block additions %}
     <link href="{% static "css/lobby.css" %}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
@@ -36,6 +36,11 @@
                                 {% csrf_token %}
                                 <button name="delete" value="{{lobby.id}}" type="submit">Delete</button>
                             </form>
+                        {% else %}
+                            <form action = "{{id}}" method="post">
+                                {% csrf_token %}
+                                <button name="leave" value="{{request.user.id}}" type="submit">Leave</button>
+                            </form>
                         {% endif %}
                     </div>
                 </div>
@@ -45,14 +50,18 @@
                             {% csrf_token %}
                             <div id="members-head">
                                 <h3> Members </h3>
-                                <button id="remove-button" type="submit">REMOVE</button>
+                                {% if is_owner %}
+                                    <button id="remove-button" type="submit">REMOVE</button>
+                                {% endif %}
                             </div>
                             <div id="members">
-                                {% for member in members %}
-                                    <div class="member">
-                                        <p> {{member.username}} </p> <input type="checkbox" name = "to_delete" value = "{{member.id}}">
-                                    </div>
-                                {% endfor %}
+                                <ul class="list-group">
+                                    {% for member in members %}
+                                        <li class="list-group-item d-flex justify-content-between list-group-item-light">
+                                            {{member.username}} {% if is_owner %} <input class="form-check-input" type="checkbox" name = "to_delete" value = "{{member.id}}"> {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
                             </div>
                         </form>
                     </div>
@@ -72,8 +81,27 @@
             </div>
             {% if is_owner%}
                 <div class="container col-6" id="settings">
-                    <h2>Ведуться работы!</h2>
-                    <img src="https://psv4.userapi.com/c532036/u194600499/docs/d12/6981c656ea85/rasstupites_vedutsya_palochnye_raboty.gif?extra=Pk2JRMQSlpFy-FKvXzTucys1Lsy-dRFhZRFN3eIGRTv6qJ86kxUGBsLSup-BSND0OF7aP8G-TDWkC-z5k3e6DhIrV5dFRdbO2k0X0lGOUDpECptjn6IerhCdtPDAWeq01BmEDgwbNZWUG10BMGBH7yGtnCQ">
+                    <form action="">
+                        {% csrf_token %}
+                        {{ mmf }}
+                    </form>
+                    <div id="ban">
+                        <p>Add user to ban list</p>
+                        <form id="ban_form" method="post" action = "">
+                            {% csrf_token %}
+                            {{ ban_form }}
+                            <button type="submit">BAN</button>
+                        </form>
+                        <div id="ban-list">
+                            <ul class="list-group">
+                                {% for user in ban_list %}
+                                    <li class="list-group-item d-flex justify-content-between list-group-item-light">
+                                        {{ user.username }} <input class="form-check-input" type="checkbox" value="" aria-label="...">
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
         </div>

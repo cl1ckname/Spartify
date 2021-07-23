@@ -1,13 +1,15 @@
 from datetime import datetime
 from random import randint
 from django.shortcuts import render, redirect
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
 from django.views.generic.base import TemplateView
-from backend.utils import LobbyIsFull, track_full_name, clear_track, _add_to_lobby
+from lobby.services import _ban_user, _leave_from_lobby, _remove_users_from_lobby, _try_add_to_lobby
+from backend.utils import clear_track, track_full_name
 from .models import Lobby, User
 from backend.forms import AddTrackForm
-from lobby.forms import JoinLobby, LobbyForm
+from lobby.forms import BanForm, JoinLobby, LobbyForm, MaxMembersForm
 from backend.spotify import api
 
 
@@ -20,13 +22,11 @@ def lobby(request):
         if pin:
             form = JoinLobby(data=request.POST)
             if form.is_valid():
-                try:
-                    _add_to_lobby(user, pin)
-                    return redirect('/lobby/'+pin)
-                except LobbyIsFull as e:
-                    data = {'form': JoinLobby(), 'lobby_form': LobbyForm(), 'error': "aboba"}
-                    print(str(data))
-                    render(request, 'lobby/lobby.html', data)
+                return _try_add_to_lobby(request)
+            else:
+                print(form.errors)
+                data = {'form': form, 'lobby_form': LobbyForm(), 'error': form.errors}
+                return render(request, 'lobby/lobby.html', data)
 
         elif max_members:
             _lobby = Lobby(id = randint(0,9999), owner = user, max_members=max_members, num_members=1)
@@ -36,7 +36,7 @@ def lobby(request):
             user.save()
             return redirect(f'/lobby/{id}')
         else:
-            return render(request, 'lobby/lobby.html', {'form': JoinLobby(), 'lobby_form': LobbyForm(), })
+            return render(request, 'lobby/lobby.html', {'form': JoinLobby(), 'lobby_form': LobbyForm()})
     else:
         form = JoinLobby()
     if not user.lobby_in:
@@ -63,8 +63,17 @@ class LobbyView(TemplateView):
         ''' Creates a form and validates it and also returns a page render if the request method is POST'''
         data = dict(request.POST)
         link = data.get('link')
+        leave = data.get('leave')
+        if isinstance(leave, list):
+            leave = int(leave[0])
+        if isinstance(link, list):
+            link = link[0]
         to_delete = data.get('to_delete')
-        self.set_data(request, lobby_id)
+        username = data.get('username')
+        try:
+            self.set_data(request, lobby_id)
+        except ObjectDoesNotExist:
+            return redirect('/lobby')
         token = request.user.oauth_token
         if link:
             self.form = AddTrackForm(data=data)
@@ -73,10 +82,15 @@ class LobbyView(TemplateView):
                 api.add_queue(uri, token)
                 self.add_history(request, data)
         elif to_delete:
-            for id in to_delete:
-                user = User.objects.get(id=int(id))
-                user.lobby_in = None
-                user.save()
+            _remove_users_from_lobby(to_delete, self.this_lobby)
+        elif username:
+            ban_form = BanForm(data=request.POST)
+            if ban_form.is_valid():
+                if isinstance(username, list):
+                    username = username[0]
+                _ban_user(self.this_lobby, username)
+        elif leave:
+            return _leave_from_lobby(leave)
         else:
             id_to_delete = request.POST.get('delete')
             if id_to_delete:
@@ -95,25 +109,30 @@ class LobbyView(TemplateView):
 
     def display_page(self, request) -> HttpResponse:
         ''' Collects the view fields in the HttpResponse and checks the user's access to the lobby '''
-        track = api.get_user_playback(self.owner.oauth_token)
-        history = self.this_lobby.history
-
-        name = track_full_name(track)
-
         if request.user.lobby_in != self.this_lobby:
             return HttpResponse("Forbidden")
-
         if self.this_lobby:
-            return render(request, self.template_name, {'lobby': self.this_lobby, 'members': self.members, 'track': name, 'form': self.form,
-                                                        'owner': self.owner.username, 'history': history, 'is_owner': (self.owner==self.request.user)})
+            return render(request, self.template_name, self.get_page_data())
         else:
             raise Http404
 
     def add_history(self, request, data):
         ''' Adds track information to the lobby history '''
-        track_id = clear_track(data['link'])
+        link = data.get('link')
+        if isinstance(link, list):
+            link = link[0]
+        track_id = clear_track(link)
         track_raw = api.get_track(track_id, self.owner.oauth_token)
         to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
         ).strftime('%H:%M'), 'user': request.user.username}
         self.this_lobby.history.append(to_json)
         self.this_lobby.save()
+
+    def get_page_data(self) -> dict:
+        track = api.get_user_playback(self.owner.oauth_token)
+        name = track_full_name(track)
+        history = self.this_lobby.history
+        ban_list = self.this_lobby.ban_list.all()
+        return {'lobby': self.this_lobby, 'members': self.members, 'track': name, 'form': self.form,
+                'owner': self.owner.username, 'history': history, 'is_owner': (self.owner==self.request.user),
+                'mmf': MaxMembersForm(num_members=3), 'ban_form': BanForm(), 'ban_list': ban_list}

@@ -51,12 +51,12 @@
     width: 98%;
 }
 #members{
-    min-height: 150px;
+    min-height: 25vh;
     height: min-content;
 }
 #history{
     width: 98%;
-    min-height: 150px;
+    min-height: 25vh;
     height: min-content;
 }
 #headers{
@@ -142,4 +142,26 @@
 }
 .member {
     display: flex;
+}
+#ban-list {
+    width: 30vw;
+    min-height: 25vh;
+    border: 1px solid #000000;
+    background: #efefef;
+    margin-top: 1em;
+}
+#ban_form {
+    display: flex;
+    width: 30vw;
+    flex-direction: row;
+}
+#ban_form button {
+    width: 5vw;
+    color: #fff;
+    background-color: #c01212;
+    border: none;
+    font-weight: bold;
+}
+#ban_form input {
+    width: 25vw;
 }
