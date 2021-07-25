@@ -14,9 +14,9 @@ class Queue:
     def add(self, link, user):
         self.count += 1
         cleared_link = link.split('track/')[1].split('?')[0]
-        self.queue['links'].append(cleared_link)
-        self.queue['times'].append(datetime.now().strftime('%H:%M'))
-        self.queue['users'].append(user)
+        self.queue['links'] = [cleared_link] + self.queue['links']
+        self.queue['times'] = [datetime.now().strftime('%H:%M')] + self.queue['times']
+        self.queue['users'] = [user] + self.queue['users']
         self.save()
     
     def pop(self) -> str:

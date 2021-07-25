@@ -1,19 +1,22 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Dashboard{% endblock %}
+{% block additions%}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
+    <script src="{% static "js/ajax_queue.js" %}"> </script>
+{% endblock %}
 {% block content %}
     <h1>{{request.user}}</h1>
     <p>Now playing: {{track}}</p>
-    <form action="" method="post">
+    <form id="add_sub" method="post">
         {{ form.as_p }}
         {% csrf_token %}
         <input type="submit" value="ADD">
     </form>
     <div class = "tracks">
-        <ul>
+        <ul class="list-group" id="history">
             {% for title, date, name in info %}
-                <div class = "track">
-                    <li> <p> {{ title }} </p> <p> {{ date }} </p> <p> by {{name}} </p>  </li> <br>
-                </div>
+                    <li class="list-group-item list-group-item-action"> {{ title }} {{ date }} by {{name}} </li>
             {% endfor %}
         </ul>
     </div>

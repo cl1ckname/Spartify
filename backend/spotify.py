@@ -4,19 +4,19 @@ import json
 from django.conf import settings
 import requests as rq
 from urllib.parse import quote
-
 from requests.models import Response
+from .logger import api_logger
 
 def check_response(func):
-    def new_f(self, arg1, *args, **kwargs) -> dict:
-        r = func(self, arg1, *args, **kwargs)
+    def new_f(self, *args, **kwargs) -> dict:
+        r = func(self, *args, **kwargs)
         if r.status_code not in range(200, 299):
+            api_logger.warning('', extra= {'username':'', 'status_code': r.status_code, 'endpoint': r.request.url}) #TODO - realize log username
             return {}
         content = r.content.decode()
         if content:
-            return json.loads(r.content.decode())
+            return json.loads(content)
         return {}
-
     return new_f
 
 class SpotifyAPI(object):
@@ -142,6 +142,7 @@ class SpotifyAPI(object):
             'Authorization': f'Bearer {oauth_token}'
         }
         r = rq.get(uri, headers=headers)
+        print(r.status_code)
         return r
 
     @check_response
@@ -168,6 +169,7 @@ class SpotifyAPI(object):
             'Authorization': f'Bearer {oauth}'
         }
         r = rq.get(lookup, headers=headers)
+        print(r.status_code)
         return r
 
     @check_response

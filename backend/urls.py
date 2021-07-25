@@ -8,6 +8,6 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name= 'logout'),
     path('', views.dashboard, name='dashboard'),
     path('devices', views.devices, name='devices'),
-    # path('lobby_redirect', views.lobby_redirect, name='lobby_redirect')
+    path('ajax/add_queue', views.post_queue, name="post_queue"),
 
 ]

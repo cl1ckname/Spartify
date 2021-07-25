@@ -1,5 +1,8 @@
 ''' Some logic that made sense to move to a separate file '''
 
+import datetime
+from requests import api
+from backend.utils import clear_track, track_full_name
 from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from lobby.models import Lobby
@@ -54,3 +57,15 @@ def _leave_from_lobby(id):
     member.lobby_in = None
     member.save()
     return redirect('/lobby')
+
+def add_history(lobby, oauth, data, username):
+    ''' Adds track information to the lobby history '''
+    link = data.get('link')
+    if isinstance(link, list):
+        link = link[0]
+    track_id = clear_track(link)
+    track_raw = api.get_track(track_id, oauth)
+    to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
+    ).strftime('%H:%M'), 'user': username}
+    lobby.history.append(to_json)
+    lobby.save()

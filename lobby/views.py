@@ -1,11 +1,13 @@
 from datetime import datetime
 from random import randint
+from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
 from django.views.generic.base import TemplateView
-from lobby.services import _ban_user, _leave_from_lobby, _remove_users_from_lobby, _try_add_to_lobby
+import requests
+from lobby.services import _ban_user, _leave_from_lobby, _remove_users_from_lobby, _try_add_to_lobby, add_history
 from backend.utils import clear_track, track_full_name
 from .models import Lobby, User
 from backend.forms import AddTrackForm
@@ -52,15 +54,18 @@ class LobbyView(TemplateView):
     members = None
     owner = None
     form = None
+    username = None
 
     def get(self, request, lobby_id=0, *args, **kwargs) -> HttpResponse:
         ''' Creates a form and returns a page render if the request method is GET '''
         self.form = AddTrackForm()
         self.set_data(request, lobby_id)
+        self.username = request.user.username
         return self.display_page(request)
 
     def post(self, request, lobby_id=0, *args, **kwargs) -> HttpResponse:
         ''' Creates a form and validates it and also returns a page render if the request method is POST'''
+        self.username = request.user.username
         data = dict(request.POST)
         link = data.get('link')
         leave = data.get('leave')
@@ -74,16 +79,9 @@ class LobbyView(TemplateView):
             self.set_data(request, lobby_id)
         except ObjectDoesNotExist:
             return redirect('/lobby')
-        token = request.user.oauth_token
-        if link:
-            self.form = AddTrackForm(data=data)
-            if self.form.is_valid():
-                uri = clear_track(link)
-                api.add_queue(uri, token)
-                self.add_history(request, data)
-        elif to_delete:
-            _remove_users_from_lobby(to_delete, self.this_lobby)
-        elif username:
+        token = self.owner.oauth_token
+
+        if username:
             ban_form = BanForm(data=request.POST)
             if ban_form.is_valid():
                 if isinstance(username, list):
@@ -116,17 +114,7 @@ class LobbyView(TemplateView):
         else:
             raise Http404
 
-    def add_history(self, request, data):
-        ''' Adds track information to the lobby history '''
-        link = data.get('link')
-        if isinstance(link, list):
-            link = link[0]
-        track_id = clear_track(link)
-        track_raw = api.get_track(track_id, self.owner.oauth_token)
-        to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
-        ).strftime('%H:%M'), 'user': request.user.username}
-        self.this_lobby.history.append(to_json)
-        self.this_lobby.save()
+    
 
     def get_page_data(self) -> dict:
         track = api.get_user_playback(self.owner.oauth_token)
@@ -136,3 +124,47 @@ class LobbyView(TemplateView):
         return {'lobby': self.this_lobby, 'members': self.members, 'track': name, 'form': self.form,
                 'owner': self.owner.username, 'history': history, 'is_owner': (self.owner==self.request.user),
                 'mmf': MaxMembersForm(num_members=3), 'ban_form': BanForm(), 'ban_list': ban_list}
+
+
+def add_history(request, lobby: Lobby, link: str):
+    ''' Adds track information to the lobby history '''
+    track_id = clear_track(link)
+    track_raw = api.get_track(track_id, lobby.owner.oauth_token)
+    to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
+    ).strftime('%H:%M'), 'user': request.user.username}
+    lobby.history.append(to_json)
+    lobby.save()
+
+@login_required
+def ajax_add_track(request) -> JsonResponse:
+    if request.method == 'POST' and request.is_ajax():
+        form = AddTrackForm(data = request.POST)
+        print(request.POST, 132)
+        if form.is_valid():
+            link = request.POST['link']
+            lobby_id = int(request.POST['add_to'])
+            lobby = Lobby.objects.get(id=lobby_id)
+
+            uri = clear_track(link)
+            api.add_queue(uri, lobby.owner.oauth_token)
+            track_name = track_full_name(api.get_track(uri, lobby.owner.oauth_token))
+
+            add_history(request, lobby, link)
+            return JsonResponse({'title': track_name, 'username': request.user.username}, status=200)
+        else:
+            print(form.errors)
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        return JsonResponse({'errors': 'Not post or ajax'})
+
+@login_required
+def ajax_remove_members(request) -> JsonResponse:
+    if request.method == 'POST' and request.is_ajax():
+        to_delete = request.POST.get('to_delete')
+        lobby_id = request.POST.get('lobby_id')
+        lobby = Lobby.objects.get(id=lobby_id)
+        # _remove_users_from_lobby(to_delete, lobby)
+        
+        return JsonResponse({'to_delete': to_delete})
+    else:
+        return JsonResponse({'errors': 'Not post or ajax'})

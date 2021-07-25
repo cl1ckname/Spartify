@@ -25,7 +25,7 @@ SECRET_KEY = '-l^ge1pyto)t7*-g2c-5r-k$5p$z*r_vxj354k6&=4@^%5$jn%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.53', 'localhost']
+ALLOWED_HOSTS = ['192.168.43.72', 'localhost']
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -134,7 +134,7 @@ STATIC_URL = 'backend/static/'
 SOCIAL_AUTH_SPOTIFY_KEY = os.environ['SOCIAL_AUTH_SPOTIFY_KEY']  
 SOCIAL_AUTH_SPOTIFY_SECRET = os.environ['SOCIAL_AUTH_SPOTIFY_SECRET'] 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
-SOCIAL_AUTH_SPOTIFY_SCOPE = ['user-read-playback-state', 'user-modify-playback-state']
+SOCIAL_AUTH_SPOTIFY_SCOPE = ['user-read-email','user-read-private', 'user-read-playback-state', 'user-modify-playback-state']
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'

@@ -5,6 +5,8 @@
     <link href="{% static "css/lobby.css" %}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
     <script src="{% static "js/switch-menu.js" %}"> </script>
+    <script src="{% static "js/ajax_lobby_add_track.js" %}"> </script>
+    <script src="{% static "js/ajax_remove_members.js" %}"> </script>
 {% endblock %}
 {% block content %}
     <div id="headers">
@@ -24,10 +26,11 @@
                 <div class="row" id = "lobby_container">
                     <div class="col-11 pb-2 mb-3">
                         <p>Now playing: {{track}}</p>
-                        <form action="{{id}}" method="post">
+                        <form id="add_track" method="post">
                             {{ form.as_p }}
                             {% csrf_token %}
-                            <input type="submit" value="ADD">
+                            <input type="hidden" name="add_to" value="{{lobby.id}}"></input>
+                            <input type="submit" value="ADD"></input>
                         </form>
                     </div>
                     <div class="col-1 pb-2 mb-3" id = "delete">
@@ -46,18 +49,19 @@
                 </div>
                 <div class="row justify-content-between" id="lobby_container">
                     <div class="col-md-6">
-                        <form class = "ov-form" action = "" method="post">
+                        <form class = "ov-form" id="remove_members" method="post">
                             {% csrf_token %}
                             <div id="members-head">
                                 <h3> Members </h3>
                                 {% if is_owner %}
+                                    <input type="hidden" name="lobby_id" value="{{lobby.id}}"></input>
                                     <button id="remove-button" type="submit">REMOVE</button>
                                 {% endif %}
                             </div>
                             <div id="members">
                                 <ul class="list-group">
                                     {% for member in members %}
-                                        <li class="list-group-item d-flex justify-content-between list-group-item-light">
+                                        <li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-{{member.id}}">
                                             {{member.username}} {% if is_owner %} <input class="form-check-input" type="checkbox" name = "to_delete" value = "{{member.id}}"> {% endif %}
                                         </li>
                                     {% endfor %}
@@ -68,11 +72,9 @@
                     <div class="col-md-6">
                         <h3> History </h3>
                         <div id="history">
-                            <ul>
+                            <ul class = "group-list" id="list-history">
                                 {% for song in history %}
-                                    <div class = "track">
-                                        <li> <p> {{ song.title }} </p> <p> {{ song.time }} </p> <p> by {{ song.user }} </p>  </li>
-                                    </div>
+                                    <li class="list-group-item list-group-item-action"> {{ song.title }} {{ song.date }} by {{song.user}} </li>
                                 {% endfor %}
                             </ul>
                         </div>
