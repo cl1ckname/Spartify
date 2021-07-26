@@ -28,6 +28,15 @@ class PinField(forms.Field):
             raise ValidationError("There is no lobby with this number!")
 
 
+class BanField(forms.Field):
+    def vlidate(self, value):
+        ''' Validator for validate username '''
+        value = self.username
+        try:
+            user = User.objects.get(username=value)
+        except ObjectDoesNotExist:
+            raise ValidationError("There is no user with such username")
+
 class JoinLobby(forms.Form):
     pin = PinField(required=True, label="Lobby PIN:",
                    help_text="Ask your lobby owner the #PIN code")
@@ -56,10 +65,5 @@ class MaxMembersForm(forms.Form):
 
 class BanForm(forms.Form):
     ''' Form containing a field for username '''
-    def validate(value):
-        ''' Validator for validate username '''
-        try:
-            user = User.objects.get(username=value)
-        except ObjectDoesNotExist:
-            raise ValidationError("There is no user with such username")
-    username = forms.CharField(max_length=30, label="", validators=(validate,))
+    username = BanField(label="")
+    

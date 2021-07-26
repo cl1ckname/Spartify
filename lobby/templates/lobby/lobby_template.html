@@ -7,6 +7,8 @@
     <script src="{% static "js/switch-menu.js" %}"> </script>
     <script src="{% static "js/ajax_lobby_add_track.js" %}"> </script>
     <script src="{% static "js/ajax_remove_members.js" %}"> </script>
+    <script src="{% static "js/ajax_ban_user.js" %}"> </script>
+    <script src="{% static "js/ajax_unban_users.js" %}"> </script>
 {% endblock %}
 {% block content %}
     <div id="headers">
@@ -16,13 +18,13 @@
     </div>
     {% if is_owner %}
         <div id = "switch">
-            <button style="background: #bbb"> Overview </button>
-            <button> Settings </button>
+            <button class="{%if request.GET.p == "settings"%} unactive-button {% else %} active-button {% endif %}"> Overview </button>
+            <button class="{%if request.GET.p == "overview"%} unactive-button {% else %} active-button {% endif %}"> Settings </button>
         </div>
     {% endif %}
     <div id="switch_box">
         <div class="row">
-            <div class="container col-6" id="overview">
+            <div class="container col-6 {% if request.GET.p == "settings" %} moveLeft {% endif %}" id="overview">
                 <div class="row" id = "lobby_container">
                     <div class="col-11 pb-2 mb-3">
                         <p>Now playing: {{track}}</p>
@@ -62,7 +64,7 @@
                                 <ul class="list-group">
                                     {% for member in members %}
                                         <li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-{{member.id}}">
-                                            {{member.username}} {% if is_owner %} <input class="form-check-input" type="checkbox" name = "to_delete" value = "{{member.id}}"> {% endif %}
+                                            {{member.username}} {% if is_owner and lobby.owner.id != member.id %} <input class="form-check-input" type="checkbox" name = "to_delete" value = "{{member.id}}"> {% endif %}
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -82,27 +84,33 @@
                 </div> 
             </div>
             {% if is_owner%}
-                <div class="container col-6" id="settings">
+                <div class="container col-6 {% if request.GET.p == "settings" %} moveLeft {% endif %}" id="settings">
                     <form action="">
                         {% csrf_token %}
                         {{ mmf }}
                     </form>
                     <div id="ban">
                         <p>Add user to ban list</p>
-                        <form id="ban_form" method="post" action = "">
+                        <form id="ban_form" method="post">
                             {% csrf_token %}
+                            <input type="hidden" name="lobby_id" value="{{lobby.id}}"></input>
                             {{ ban_form }}
                             <button type="submit">BAN</button>
                         </form>
-                        <div id="ban-list">
-                            <ul class="list-group">
-                                {% for user in ban_list %}
-                                    <li class="list-group-item d-flex justify-content-between list-group-item-light">
-                                        {{ user.username }} <input class="form-check-input" type="checkbox" value="" aria-label="...">
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+                        <form id="unban" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="lobby_id" value="{{lobby.id}}"></input>
+                            <div id="ban-list">
+                                <ul class="list-group">
+                                    {% for user in ban_list %}
+                                        <li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-ban-{{user.id}}">
+                                            {{ user.username }} <input class="form-check-input" type="checkbox" name="to_unban" value="{{user.id}}" aria-label="...">
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                <button id="unbun-button">UNBUN</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             {% endif %}

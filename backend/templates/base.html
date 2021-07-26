@@ -21,7 +21,7 @@
                         <a href="{% url "devices" %}">Devices</a>
                     </li>
                     <li {% if section == "lobby" %}class="selected"{% endif %}>
-                        <a href="/lobby">Lobby</a>
+                        <a href="{% url "lobby" %}">{% url "lobby" %}</a>
                     </li>
                 </ul>
             {% endif %}

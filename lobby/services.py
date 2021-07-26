@@ -3,7 +3,7 @@
 import datetime
 from requests import api
 from backend.utils import clear_track, track_full_name
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.shortcuts import redirect, render
 from lobby.models import Lobby
 from backend.models import User
@@ -31,6 +31,7 @@ def _remove_users_from_lobby(users: list, lobby: Lobby):
         if user.lobby_in == lobby:
             user.lobby_in = None
             user.save()
+
 def _ban_user(lobby: Lobby, username: str):
     ''' Ban user in lobby '''
     user = User.objects.get(username = username)
@@ -52,13 +53,13 @@ def _try_add_to_lobby(request):
         data = {'form': form, 'lobby_form': LobbyForm()}
         return render(request, 'lobby/lobby.html', data)
 
-def _leave_from_lobby(id):
+def _leave_from_lobby(id:int):
     member = User.objects.get(id = id)
     member.lobby_in = None
     member.save()
     return redirect('/lobby')
 
-def add_history(lobby, oauth, data, username):
+def add_history(lobby: Lobby, oauth:str, data:dict, username:str):
     ''' Adds track information to the lobby history '''
     link = data.get('link')
     if isinstance(link, list):
@@ -67,5 +68,17 @@ def add_history(lobby, oauth, data, username):
     track_raw = api.get_track(track_id, oauth)
     to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
     ).strftime('%H:%M'), 'user': username}
-    lobby.history.append(to_json)
+    if len(lobby.history) > 9:
+        lobby.history = lobby.history[0:9]  #max len of history - 10 tracks
+    lobby.history = [to_json] + lobby.history
+    print(lobby.history)
     lobby.save()
+
+def _unban_users(to_unban: list, lobby: Lobby):
+    try:
+        for user_id in to_unban:
+            user = User.objects.get(id=int(user_id))
+            lobby.ban_list.remove(user)
+    except ObjectDoesNotExist:
+        raise ValidationError("Unban error")
+        

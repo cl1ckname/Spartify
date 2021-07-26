@@ -1,16 +1,16 @@
 $(document).ready(function () {
-    $('#remove_members').submit(function () {
+    $('#unban').submit(function () {
 
         $.ajax({
             data: $(this).serialize(),
             type: $(this).attr('method'),
             dataType: 'json',
-            url: "/lobby/ajax/remove_members",
+            url: "/lobby/ajax/unban_users",
             success: function (response) {
-                $("#remove_members").trigger('reset');
-                var to_delete = response['to_delete'];
-                to_delete.forEach(function(item, i, arr){
-                    $('#li-'+item).remove();
+                $("#unbun").trigger('reset');
+                var to_unban = response['unbanned'];
+                to_unban.forEach(function(item, i, arr){
+                    $('#li-ban-'+item).remove();
                 });
                 
             },

@@ -6,8 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
 from django.views.generic.base import TemplateView
-import requests
-from lobby.services import _ban_user, _leave_from_lobby, _remove_users_from_lobby, _try_add_to_lobby, add_history
+from lobby.services import _ban_user, _leave_from_lobby, _remove_users_from_lobby, _try_add_to_lobby, _unban_users, add_history
 from backend.utils import clear_track, track_full_name
 from .models import Lobby, User
 from backend.forms import AddTrackForm
@@ -26,7 +25,6 @@ def lobby(request):
             if form.is_valid():
                 return _try_add_to_lobby(request)
             else:
-                print(form.errors)
                 data = {'form': form, 'lobby_form': LobbyForm(), 'error': form.errors}
                 return render(request, 'lobby/lobby.html', data)
 
@@ -44,7 +42,7 @@ def lobby(request):
     if not user.lobby_in:
         return render(request, 'lobby/lobby.html', {'form': form, 'lobby_form': LobbyForm()})
     else:
-        return redirect('lobby/'+str(user.lobby_in.id))
+        return redirect('/lobby/'+str(user.lobby_in.id))
 
 
 class LobbyView(TemplateView):
@@ -132,7 +130,10 @@ def add_history(request, lobby: Lobby, link: str):
     track_raw = api.get_track(track_id, lobby.owner.oauth_token)
     to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
     ).strftime('%H:%M'), 'user': request.user.username}
-    lobby.history.append(to_json)
+    if len(lobby.history) > 9:
+        lobby.history = lobby.history[0:9]  #max len of history - 10 tracks
+    lobby.history = [to_json] + lobby.history
+    print(lobby.history)
     lobby.save()
 
 @login_required
@@ -160,11 +161,37 @@ def ajax_add_track(request) -> JsonResponse:
 @login_required
 def ajax_remove_members(request) -> JsonResponse:
     if request.method == 'POST' and request.is_ajax():
-        to_delete = request.POST.get('to_delete')
+        to_delete = request.POST.getlist('to_delete')
         lobby_id = request.POST.get('lobby_id')
         lobby = Lobby.objects.get(id=lobby_id)
-        # _remove_users_from_lobby(to_delete, lobby)
-        
-        return JsonResponse({'to_delete': to_delete})
+        _remove_users_from_lobby(to_delete, lobby)
+        if not isinstance(to_delete, list):
+            to_delete = [to_delete]
+        print(to_delete)
+        return JsonResponse({'to_delete': to_delete}, status=200)
     else:
-        return JsonResponse({'errors': 'Not post or ajax'})
+        return JsonResponse({'errors': 'Not post or ajax'}, status=400)
+
+@login_required
+def ajax_ban_user(request) -> JsonResponse:
+    if request.method == 'POST' and request.is_ajax():
+        username = request.POST['username']
+        lobby_id = request.POST['lobby_id']
+        ban_form = BanForm(data=request.POST)
+        if ban_form.is_valid():
+            lobby = Lobby.objects.get(id = int(lobby_id))
+            _ban_user(lobby, username)
+            return JsonResponse({'username': username}, status=200)
+
+    else:
+        return JsonResponse({'errors': 'Not post or ajax'}, status=400)
+
+@login_required
+def ajax_unban_user(request) -> JsonResponse:
+    if request.method == 'POST' and request.is_ajax():
+        to_unban = request.POST.getlist('to_unban')
+        lobby_id = int(request.POST.get('lobby_id'))
+        _unban_users(to_unban, Lobby.objects.get(id=lobby_id))
+        return JsonResponse({'unbanned': to_unban}, status=200)
+    else:
+        return JsonResponse({'errors': 'Not post or ajax'}, status=400)
