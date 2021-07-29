@@ -1,0 +1,25 @@
+.big-title {
+    font-size: 6em;
+    margin: 2em 0 1em;
+    text-align: center;
+    text-transform: uppercase;
+}
+.header-text {
+    font-size: 2em;
+    font-weight: 100;
+    text-align: center;
+}
+.big_button {
+    font-size: 4em;
+    padding: 0 .7em 0;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    border: none;
+    background: #1DB954;
+    color: #fff;
+}
+.flex-center {
+    display: flex;
+    justify-content: center;
+}

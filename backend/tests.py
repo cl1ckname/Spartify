@@ -2,7 +2,7 @@ from datetime import datetime
 from django.test import TestCase
 from django.conf import settings
 from .models import User
-from .spotify import SpotifyAPI
+from SpotifyAPI import api
 
 class ApiTestCase(TestCase):
     @classmethod
@@ -11,7 +11,7 @@ class ApiTestCase(TestCase):
         cls.refresh_token = 'AQAsBvSMEh5J17WotwmbOHk5AYkFBYnwTVjnpFO1jfeUoyg0hfh__0B3_KOwzcewWcCfH8dqLS5bnRbrdSNJ93-KchjepgbLWufu0qRpX5ogPMpPfWooODad1cehQVSYeC0'
 
     def setUp(self):
-        self.api = SpotifyAPI(settings.SOCIAL_AUTH_SPOTIFY_KEY, settings.SOCIAL_AUTH_SPOTIFY_SECRET)
+        self.api = api
         self.user = User.objects.create(id = 1, refresh_token = 'AQAsBvSMEh5J17WotwmbOHk5AYkFBYnwTVjnpFO1jfeUoyg0hfh__0B3_KOwzcewWcCfH8dqLS5bnRbrdSNJ93-KchjepgbLWufu0qRpX5ogPMpPfWooODad1cehQVSYeC0',
                                         oauth_token = 'BQDxuhRscquWHAg7ANhKniDkst4uCpSND8ZD7aQ48dR7aswlYkT4xIW4LM12fc88Gw9j9hQfIRjtpxyiv-W9ycl2VICaMkqAT6VB_yJeC5Mt8I4S3kjKFeS4Ln-QnuvJO4jC_C8rajW-u9aJBy29_HTPq2ohjQG_qQIKn0EGMJniGw',
                                         username='petya', expires = datetime.now(tz=None))
@@ -40,5 +40,9 @@ class ApiTestCase(TestCase):
     def test_get_track(self):
         ''' Method: get_track '''
         test_ans = self.api.get_track('3XC7Jd6SfrQYKZJ6inyRHK', self.user.oauth_token)
-        print(test_ans.keys())
         self.assertNotEqual(test_ans, {})
+
+    def test_get_me(self):
+        ''' Method: get_me '''
+        r = self.api.get_me(self.user.oauth_token)
+        self.assertNotEqual(r, {})

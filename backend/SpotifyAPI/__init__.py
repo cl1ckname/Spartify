@@ -1,18 +1,24 @@
+''' A package for using api spotify. Contains an api object that gets the user code and secret code from the project settings. '''
+
 import base64
 import datetime
 import json
 from django.conf import settings
+from django.utils.timezone import make_aware
 import requests as rq
 from urllib.parse import quote
 from requests.models import Response
-from .logger import api_logger
+from backend.logger import api_logger
+from .api_errors import AuthenticationError, RegularError, SpotifyError
 
 def check_response(func):
+    ''' Returns content of response or raise API error'''
     def new_f(self, *args, **kwargs) -> dict:
         r = func(self, *args, **kwargs)
         if r.status_code not in range(200, 299):
-            api_logger.warning('', extra= {'username':'', 'status_code': r.status_code, 'endpoint': r.request.url}) #TODO - realize log username
-            return {}
+            if r.status_code == 401:
+                raise AuthenticationError(r)
+            raise RegularError(r)
         content = r.content.decode()
         if content:
             return json.loads(content)
@@ -60,7 +66,7 @@ class SpotifyAPI(object):
         token_response = r.json()
         if r.status_code not in range(200, 299):
             raise Exception('Authentificate failed')
-        now = datetime.datetime.now()
+        now = make_aware(datetime.datetime.now())
         self.acces_token = token_response['access_token']
         expire_in = token_response['expires_in']
         self.acces_token_expires = now + datetime.timedelta(seconds=expire_in)
@@ -142,7 +148,6 @@ class SpotifyAPI(object):
             'Authorization': f'Bearer {oauth_token}'
         }
         r = rq.get(uri, headers=headers)
-        print(r.status_code)
         return r
 
     @check_response
@@ -169,7 +174,6 @@ class SpotifyAPI(object):
             'Authorization': f'Bearer {oauth}'
         }
         r = rq.get(lookup, headers=headers)
-        print(r.status_code)
         return r
 
     @check_response
@@ -183,7 +187,16 @@ class SpotifyAPI(object):
             'uri': 'spotify:track:'+uri,
         }
         r = rq.post(endpoint, headers=headers, data=data)
-        print(r.text)
+        return r
+
+    @check_response
+    def get_me(self, oauth: str):
+        ''' get information about user '''
+        endpoint = 'https://api.spotify.com/v1/me'
+        headers = {
+            'Authorization': f'Bearer {oauth}'
+        }
+        r = rq.get(endpoint, headers=headers)
         return r
 
     def refresh_user(self, user) -> None:
@@ -191,7 +204,7 @@ class SpotifyAPI(object):
         if user.expires.replace(tzinfo=None) < datetime.datetime.now(tz=None):
             refresh_data = self.refresh_token(user.refresh_token)
             user.oauth_token = refresh_data['access_token']
-            user.expires = datetime.datetime.now(tz=None) + datetime.timedelta(seconds=refresh_data['expires_in'])
+            user.expires = make_aware(datetime.datetime.now(tz=None)) + datetime.timedelta(seconds=refresh_data['expires_in'])
             user.save()
 
 api = SpotifyAPI(settings.SOCIAL_AUTH_SPOTIFY_KEY,

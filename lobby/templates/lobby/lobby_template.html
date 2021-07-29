@@ -4,6 +4,7 @@
 {% block additions %}
     <link href="{% static "css/lobby.css" %}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
     <script src="{% static "js/switch-menu.js" %}"> </script>
     <script src="{% static "js/ajax_lobby_add_track.js" %}"> </script>
     <script src="{% static "js/ajax_remove_members.js" %}"> </script>
@@ -12,14 +13,23 @@
 {% endblock %}
 {% block content %}
     <div id="headers">
-        <h1> Lobby #{{lobby.id}} </h1>
-        <h1 style="color: #999999; margin-left: 5%"> Owner - {{owner}} </h1>
-        <h1 id="members_count">Members: {{lobby.num_members}}</h1>
+        {% comment %} <h1> Lobby #{{lobby.id}} </h1> {% endcomment %}
+        {% comment %} <h1 style="color: #999999; margin-left: 5%"> Owner - {{owner}} </h1>
+        <h1 id="members_count">Members: {{lobby.num_members}}</h1> {% endcomment %}
+        <h1>
+             Lobby #{{lobby.id}}
+            <small class="text-muted">
+                Owner - {{owner}}
+            </small>
+            <small class="text-muted">
+                Members: {{lobby.num_members}}
+            </small>
+        </h1>
     </div>
     {% if is_owner %}
         <div id = "switch">
             <button class="{%if request.GET.p == "settings"%} unactive-button {% else %} active-button {% endif %}"> Overview </button>
-            <button class="{%if request.GET.p == "overview"%} unactive-button {% else %} active-button {% endif %}"> Settings </button>
+            <button class="{%if request.GET.p == "settings"%} active-button {% else %} unactive-button {% endif %}"> Settings </button>
         </div>
     {% endif %}
     <div id="switch_box">

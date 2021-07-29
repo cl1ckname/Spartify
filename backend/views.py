@@ -1,17 +1,19 @@
-from django.http.response import JsonResponse
+from django.contrib.auth import logout
+from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from backend.utils import track_full_name, clear_track, _make_devices_list
-from .models import User
 from lobby.lobby import Queue
-from .spotify import api
+from backend.SpotifyAPI import api
 from .forms import AddTrackForm
 
 
 def user_login(request):
-
     return render(request, 'backend/login.html')
 
+def user_logout(request):
+    logout(request)
+    return render(request, 'backend/logout.html')
 
 @login_required
 def dashboard(request):
@@ -20,19 +22,12 @@ def dashboard(request):
     api.refresh_user(user)
     token = user.oauth_token
 
-    # if request.method == 'POST':
-    #     link = request.POST['link']
-    #     add_form = AddTrackForm(data=request.POST)
-    #     if add_form.is_valid():
-    #         uri = clear_track(link)
-    #         api.add_queue(uri, token)
-    #         queue.add(request.POST['link'], request.user.username)
-
-    if len(token) > 10:
+    if token:
         track = api.get_user_playback(token)
         name = track_full_name(track)
+        user_info = api.get_me(token)
     else:
-        name = 'No token!'
+        raise Exception('No TOKEN')
     form = AddTrackForm()
     names = []
     for link in queue.get_links():
@@ -42,7 +37,7 @@ def dashboard(request):
 
     info = zip(names, queue.get_times(), queue.get_users())
     return render(request, 'backend/dashboard.html', {'section': 'dashboard', 'track': name, 'form': form,
-                                                      'info': info, 'queue': queue})
+                                                      'info': info, 'user_info': user_info})
 
 
 @login_required
@@ -57,7 +52,7 @@ def devices(request):
 
     devices_list = _make_devices_list(data)
 
-    return render(request, 'backend/devices.html', {'devices_list': devices_list})
+    return render(request, 'backend/devices.html', {'section': 'devices','devices_list': devices_list})
 
 
 @login_required
@@ -75,5 +70,11 @@ def post_queue(request):
             track_name = track_full_name(api.get_track(track_id, token))
             return JsonResponse({'title': track_name, 'username': request.user.username}, status=200)
         else:
-            print(form.errors)
             return JsonResponse({'errors': form.errors}, status=400)
+
+def authentication_error(request):
+    logout(request)
+    return render(request, 'backend/authentication_error.html')
+
+def server_error(request):
+    return HttpResponse('server error')

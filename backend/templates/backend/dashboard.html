@@ -7,12 +7,41 @@
 {% endblock %}
 {% block content %}
     <h1>{{request.user}}</h1>
-    <p>Now playing: {{track}}</p>
-    <form id="add_sub" method="post">
-        {{ form.as_p }}
-        {% csrf_token %}
-        <input type="submit" value="ADD">
-    </form>
+   
+    <div class="row">
+        <div class="col-lg-5 col-xl-7 order-last order-lg-first"> 
+            <span class="d-inline-block text-truncate" style="max-width: inherit;">Now playing: {{track}} </span>
+            <form id="add_sub" method="post">
+                {{ form.as_p }}
+                {% csrf_token %}
+                <input type="submit" value="ADD">
+            </form>
+        </div>
+        <div class="col-lg-7 col-xl-5 order-first order-lg-last">
+            <div class="card text-center">
+            <div class="card-header">Personal info</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-8 border-end">
+                            <h4 class="card-title">{{request.user.first_name}}</h4>
+                            <span class="d-inline-flex"> <p class="card-text">Now in lobby: <a class="h6">{{ request.user.lobby_in.id|default:"not in lobby" }}</a> </p> </span>
+                            <p class="card-text">
+                                Product: {{user_info.product}} <br>
+                                Country: {{user_info.country}} <br>
+
+                            </p>
+
+                        </div>
+                        <div class="col-4">
+                            {%for image in user_info.images%}
+                                <img src="{{image.url}}" alt="" class="card-img img-fluid" style="border-radius: 50%">
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class = "tracks">
         <ul class="list-group" id="history">
             {% for title, date, name in info %}

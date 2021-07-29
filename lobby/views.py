@@ -11,7 +11,7 @@ from backend.utils import clear_track, track_full_name
 from .models import Lobby, User
 from backend.forms import AddTrackForm
 from lobby.forms import BanForm, JoinLobby, LobbyForm, MaxMembersForm
-from backend.spotify import api
+from backend.SpotifyAPI import api
 
 
 @login_required
@@ -65,19 +65,14 @@ class LobbyView(TemplateView):
         ''' Creates a form and validates it and also returns a page render if the request method is POST'''
         self.username = request.user.username
         data = dict(request.POST)
-        link = data.get('link')
         leave = data.get('leave')
         if isinstance(leave, list):
             leave = int(leave[0])
-        if isinstance(link, list):
-            link = link[0]
-        to_delete = data.get('to_delete')
         username = data.get('username')
         try:
             self.set_data(request, lobby_id)
         except ObjectDoesNotExist:
             return redirect('/lobby')
-        token = self.owner.oauth_token
 
         if username:
             ban_form = BanForm(data=request.POST)
@@ -119,22 +114,10 @@ class LobbyView(TemplateView):
         name = track_full_name(track)
         history = self.this_lobby.history
         ban_list = self.this_lobby.ban_list.all()
-        return {'lobby': self.this_lobby, 'members': self.members, 'track': name, 'form': self.form,
+        return {'section': 'lobby','lobby': self.this_lobby, 'members': self.members, 'track': name, 'form': self.form,
                 'owner': self.owner.username, 'history': history, 'is_owner': (self.owner==self.request.user),
                 'mmf': MaxMembersForm(num_members=3), 'ban_form': BanForm(), 'ban_list': ban_list}
 
-
-def add_history(request, lobby: Lobby, link: str):
-    ''' Adds track information to the lobby history '''
-    track_id = clear_track(link)
-    track_raw = api.get_track(track_id, lobby.owner.oauth_token)
-    to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
-    ).strftime('%H:%M'), 'user': request.user.username}
-    if len(lobby.history) > 9:
-        lobby.history = lobby.history[0:9]  #max len of history - 10 tracks
-    lobby.history = [to_json] + lobby.history
-    print(lobby.history)
-    lobby.save()
 
 @login_required
 def ajax_add_track(request) -> JsonResponse:

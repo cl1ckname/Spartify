@@ -1,0 +1,20 @@
+{% load static %}
+<html>
+    <head>
+        <link href="{% static "css/base.css" %}" rel="stylesheet">
+        <link href="{% static "css/big_elements.css" %}" rel="stylesheet">
+    </head>
+</html>
+<body>
+    <div class="content">
+        <h2 class="big-title">Oooops</h2>
+        <p class="header-text">
+            You have been logged out due to some internal error. 
+            Whether we are to blame or not, you still have to 
+            <a href="{% url "social:begin" "spotify" %}">log in</a> again.
+        </p>
+        <div class="flex-center">
+             <a href="{% url "social:begin" "spotify" %}"> <button class="big_button">Log in</button> </a>
+        </div>
+    </div>
+</body>

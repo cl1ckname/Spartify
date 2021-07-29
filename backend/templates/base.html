@@ -5,35 +5,39 @@
         <title>{% block title %}{% endblock %}</title>
         <link href="{% static "css/base.css" %}" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         {% block additions %}{% endblock %}
     </head>
     <body>
-        {% comment %} <a href="{% url "social:begin" "spotify" %}">Spotify</a> {% endcomment %}
-        <span style="position: relative; left: -15px;"><i><b>#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend</b></i></span>
-        <div id="header">
-            <span class="logo">Spartify</span>
-            {% if request.user.is_authenticated %}
-                <ul class="menu">
-                    <li {% if section == "dashboard" %} class="selected"{% endif %}>
-                        <a href="{% url "dashboard" %}">My dashboard</a>
-                    </li>
-                    <li {% if section == "devices" %}class="selected"{% endif %}>
-                        <a href="{% url "devices" %}">Devices</a>
-                    </li>
-                    <li {% if section == "lobby" %}class="selected"{% endif %}>
-                        <a href="{% url "lobby" %}">{% url "lobby" %}</a>
-                    </li>
-                </ul>
-            {% endif %}
-            <span class="user">
+        <span class="ticker">#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend#trend</span>
+        <nav id="header" class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <span class="logo">Spartify</span>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-light navbar-toggler-icon"></span>
+                </button>
                 {% if request.user.is_authenticated %}
-                    Hello {{ request.user.first_name }},
-                    <a href="{% url "logout" %}">Logout</a>
-                {% else %}
-                    <a href="{% url "login" %}">Log-in</a>
+                    <div class="collapse navbar-collapse" id="navbarText">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item {% if section == "dashboard" %}active{% endif %}">
+                                <a class="nav-link" href="{% url "dashboard" %}">My dashboard</a>
+                            </li>
+                            <li class="nav-item {% if section == "lobby" %}active{% endif %}">
+                                <a class="nav-link" href="{% url "lobby" %}">Lobby</a>
+                            </li>
+                        </ul>
+                        <span class="">
+                            {% if request.user.is_authenticated %}
+                                <p style="margin-bottom: 0"> Hello {{ request.user.first_name }},
+                                <a class="ms-1" href="{% url "logout" %}">Logout</a> </p>
+                            {% else %}
+                                <a href="{% url "login" %}">Log-in</a>
+                            {% endif %}
+                        </span>
+                    </div>
                 {% endif %}
-            </span>
-        </div>
+            </div>
+        </nav>
         <div id="content">
             {% block content %}{% endblock %}
         </div>

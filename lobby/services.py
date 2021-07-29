@@ -59,19 +59,15 @@ def _leave_from_lobby(id:int):
     member.save()
     return redirect('/lobby')
 
-def add_history(lobby: Lobby, oauth:str, data:dict, username:str):
+def add_history(request, lobby: Lobby, link: str):
     ''' Adds track information to the lobby history '''
-    link = data.get('link')
-    if isinstance(link, list):
-        link = link[0]
     track_id = clear_track(link)
-    track_raw = api.get_track(track_id, oauth)
+    track_raw = api.get_track(track_id, lobby.owner.oauth_token)
     to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
-    ).strftime('%H:%M'), 'user': username}
+    ).strftime('%H:%M'), 'user': request.user.username}
     if len(lobby.history) > 9:
         lobby.history = lobby.history[0:9]  #max len of history - 10 tracks
     lobby.history = [to_json] + lobby.history
-    print(lobby.history)
     lobby.save()
 
 def _unban_users(to_unban: list, lobby: Lobby):

@@ -33,7 +33,7 @@ class BanField(forms.Field):
         ''' Validator for validate username '''
         value = self.username
         try:
-            user = User.objects.get(username=value)
+            User.objects.get(username=value)
         except ObjectDoesNotExist:
             raise ValidationError("There is no user with such username")
 
