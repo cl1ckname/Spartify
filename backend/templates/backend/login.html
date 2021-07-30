@@ -1,7 +1,53 @@
-{% extends "base.html" %}
-{% block title %}Log-in{% endblock %}
-{% block content %}
-    <h1>Log-in</h1>
-    <a href="{% url "social:begin" "spotify" %}">Spotify</a>
-    {% csrf_token %}
-{% endblock %}
+{% load static %}
+<html>
+    <head>
+        <link href="{% static "css/base.css" %}" rel="stylesheet">
+        <link href="{% static "css/big_elements.css" %}" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    </head>
+    <body>
+        <span class="ticker" style="color: #fff; background: #1DB954; top: -3px;">#comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+            #comeback
+        </span>
+        <div class="content">
+            <h2 class="big-title">Hello!</h2>
+            <p class="header-text">
+                Hey! This is #SPARTIFY - a service 
+                for collective listening to music from 
+                Spotify. First, let's 
+                <a href="{% url "social:begin" "spotify" %}">log in</a> ...
+            </p>
+            <div class="flex-center">
+                <a href="{% url "social:begin" "spotify" %}"> <button class="big_button">Log in</button> </a>
+            </div>
+        </div>
+    </body>
+</html>
