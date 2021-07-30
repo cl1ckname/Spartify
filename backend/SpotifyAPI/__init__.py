@@ -8,8 +8,7 @@ from django.utils.timezone import make_aware
 import requests as rq
 from urllib.parse import quote
 from requests.models import Response
-from backend.logger import api_logger
-from .api_errors import AuthenticationError, RegularError, SpotifyError
+from .api_errors import AuthenticationError, RegularError
 
 def check_response(func):
     ''' Returns content of response or raise API error'''

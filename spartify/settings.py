@@ -25,7 +25,7 @@ SECRET_KEY = '-l^ge1pyto)t7*-g2c-5r-k$5p$z*r_vxj354k6&=4@^%5$jn%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.43.72', 'localhost']
+ALLOWED_HOSTS = ['192.168.43.72', 'localhost', '192.168.0.53']
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -57,7 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'backend.middlewares.ApiMiddleware',
+    # 'backend.middlewares.ApiMiddleware',
 ]
 
 ROOT_URLCONF = 'spartify.urls'
@@ -159,3 +159,26 @@ QUEUE_SESSION_ID = 'queue'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = 15
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'api_formatter': {
+            'format': '{username} -- {endpoint} -- {status_code:d}: {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'api_errors': {
+            'class': 'logging.FileHandler',
+            'filename': 'logs/api_errors.log',
+            'formatter': 'api_formatter',
+            'level': 'ERROR',
+        },
+    },
+    'loggers':{
+        'backend': {
+            'handlers': ['api_errors'],
+        },
+    },
+}

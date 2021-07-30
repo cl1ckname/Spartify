@@ -24,7 +24,7 @@
                     <div class="row">
                         <div class="col-8 border-end">
                             <h4 class="card-title">{{request.user.first_name}}</h4>
-                            <span class="d-inline-flex"> <p class="card-text">Now in lobby: <a class="h6">{{ request.user.lobby_in.id|default:"not in lobby" }}</a> </p> </span>
+                            <span class="d-inline-flex"> <p class="card-text">Now in lobby: <a>{{ request.user.lobby_in.id|default:"not in lobby" }}</a> </p> </span>
                             <p class="card-text">
                                 Product: {{user_info.product}} <br>
                                 Country: {{user_info.country}} <br>

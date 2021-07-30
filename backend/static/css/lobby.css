@@ -51,7 +51,7 @@
     width: 98%;
 }
 #members{
-    min-height: 25vh;
+    min-height: 12em;
     height: min-content;
 }
 #history{
@@ -61,6 +61,7 @@
 }
 #list-history {
     padding-left: 0;
+    margin-bottom: 0;
 }
 #headers{
     display: flex;
@@ -89,7 +90,6 @@
     background: #c01212;
     color: #fff;
     padding: 10px 10px;
-    font-size: 14px;
     text-transform: uppercase;
     border: none;
 }
@@ -145,6 +145,12 @@
     padding-right: 2%;
     margin-bottom: 0.4em;
 }
+#history-head {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 2%;
+    margin-bottom: 0.4em;
+}
 #members-head button{
     border: 0;
     background: #c01212;
@@ -159,7 +165,6 @@
     display: flex;
 }
 #ban-list {
-    width: 30vw;
     min-height: 25vh;
     border: 1px solid #000000;
     background: #efefef;
@@ -170,11 +175,10 @@
 }
 #ban_form {
     display: flex;
-    width: 30vw;
     flex-direction: row;
 }
 #ban_form button {
-    width: 5vw;
+    width: 25%;
     color: #fff;
     background-color: #c01212;
     border: none;
@@ -182,7 +186,7 @@
     height: 2.2em;
 }
 #ban_form input {
-    width: 25vw;
+    width: 75%;
 }
 #unbun-button {
     color: #fff;

@@ -1,3 +1,12 @@
+var csrftoken = Cookies.get('csrftoken');
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+        else {console.log('blinb')}
+    }
+});
 $(document).ready(function () {
     $('#remove_members').submit(function () {
 

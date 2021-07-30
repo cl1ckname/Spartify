@@ -33,10 +33,10 @@
         </div>
     {% endif %}
     <div id="switch_box">
-        <div class="row">
+        <div class="row justify-content-between">
             <div class="container col-6 {% if request.GET.p == "settings" %} moveLeft {% endif %}" id="overview">
                 <div class="row" id = "lobby_container">
-                    <div class="col-11 pb-2 mb-3">
+                    <div class="col-10 col-lg-11 pb-2 mb-3">
                         <p>Now playing: {{track}}</p>
                         <form id="add_track" method="post">
                             {{ form.as_p }}
@@ -45,7 +45,7 @@
                             <input type="submit" value="ADD"></input>
                         </form>
                     </div>
-                    <div class="col-1 pb-2 mb-3" id = "delete">
+                    <div class="col-2 col-lg-1 pb-2 mb-3" id = "delete">
                         {% if is_owner %}
                             <form action = "{{id}}" method="post">
                                 {% csrf_token %}
@@ -82,7 +82,9 @@
                         </form>
                     </div>
                     <div class="col-md-6">
-                        <h3> History </h3>
+                        <div id="history-head">
+                            <h3> History </h3>
+                        </div>
                         <div id="history">
                             <ul class = "group-list" id="list-history">
                                 {% for song in history %}
@@ -95,32 +97,36 @@
             </div>
             {% if is_owner%}
                 <div class="container col-6 {% if request.GET.p == "settings" %} moveLeft {% endif %}" id="settings">
-                    <form action="">
-                        {% csrf_token %}
-                        {{ mmf }}
-                    </form>
-                    <div id="ban">
-                        <p>Add user to ban list</p>
-                        <form id="ban_form" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="lobby_id" value="{{lobby.id}}"></input>
-                            {{ ban_form }}
-                            <button type="submit">BAN</button>
-                        </form>
-                        <form id="unban" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="lobby_id" value="{{lobby.id}}"></input>
-                            <div id="ban-list">
-                                <ul class="list-group">
-                                    {% for user in ban_list %}
-                                        <li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-ban-{{user.id}}">
-                                            {{ user.username }} <input class="form-check-input" type="checkbox" name="to_unban" value="{{user.id}}" aria-label="...">
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                                <button id="unbun-button">UNBUN</button>
-                            </div>
-                        </form>
+                    <div class="row">
+                        <div class="col-12 col-lg-6">
+                            <form action="">
+                                {% csrf_token %}
+                                {{ mmf }}
+                            </form>
+                        </div>
+                        <div class="col-12 col-lg-6" id="ban">
+                            <p>Add user to ban list</p>
+                            <form id="ban_form" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="lobby_id" value="{{lobby.id}}"></input>
+                                {{ ban_form }}
+                                <button type="submit">BAN</button>
+                            </form>
+                            <form id="unban" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="lobby_id" value="{{lobby.id}}"></input>
+                                <div id="ban-list">
+                                    <ul class="list-group">
+                                        {% for user in ban_list %}
+                                            <li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-ban-{{user.id}}">
+                                                {{ user.username }} <input class="form-check-input" type="checkbox" name="to_unban" value="{{user.id}}" aria-label="...">
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    <button id="unbun-button">UNBUN</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             {% endif %}

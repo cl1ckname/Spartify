@@ -12,6 +12,7 @@ from .models import Lobby, User
 from backend.forms import AddTrackForm
 from lobby.forms import BanForm, JoinLobby, LobbyForm, MaxMembersForm
 from backend.SpotifyAPI import api
+from backend.services import SafeView
 
 
 @login_required
@@ -45,7 +46,7 @@ def lobby(request):
         return redirect('/lobby/'+str(user.lobby_in.id))
 
 
-class LobbyView(TemplateView):
+class LobbyView(SafeView):
     ''' Lobby Page View '''
     template_name = "lobby/lobby_template.html"
     this_lobby = None
@@ -58,7 +59,6 @@ class LobbyView(TemplateView):
         ''' Creates a form and returns a page render if the request method is GET '''
         self.form = AddTrackForm()
         self.set_data(request, lobby_id)
-        self.username = request.user.username
         return self.display_page(request)
 
     def post(self, request, lobby_id=0, *args, **kwargs) -> HttpResponse:
@@ -93,6 +93,7 @@ class LobbyView(TemplateView):
 
     def set_data(self, request, lobby_id) -> None:
         ''' Sets the view data according to the request and the lobby '''
+        self.username = request.user.username
         self.this_lobby = Lobby.objects.get(id=lobby_id)
         self.members = User.objects.filter(lobby_in=self.this_lobby)
         self.owner = self.this_lobby.owner
@@ -123,7 +124,6 @@ class LobbyView(TemplateView):
 def ajax_add_track(request) -> JsonResponse:
     if request.method == 'POST' and request.is_ajax():
         form = AddTrackForm(data = request.POST)
-        print(request.POST, 132)
         if form.is_valid():
             link = request.POST['link']
             lobby_id = int(request.POST['add_to'])
@@ -136,7 +136,6 @@ def ajax_add_track(request) -> JsonResponse:
             add_history(request, lobby, link)
             return JsonResponse({'title': track_name, 'username': request.user.username}, status=200)
         else:
-            print(form.errors)
             return JsonResponse({'errors': form.errors}, status=400)
     else:
         return JsonResponse({'errors': 'Not post or ajax'})
@@ -150,7 +149,6 @@ def ajax_remove_members(request) -> JsonResponse:
         _remove_users_from_lobby(to_delete, lobby)
         if not isinstance(to_delete, list):
             to_delete = [to_delete]
-        print(to_delete)
         return JsonResponse({'to_delete': to_delete}, status=200)
     else:
         return JsonResponse({'errors': 'Not post or ajax'}, status=400)

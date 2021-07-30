@@ -51,8 +51,15 @@ ol {
     overflow:auto;
 }
 
-@media (max-width: 999px) {
+@media (max-width: 991px) {
     body {font-size: 2em !important;}
+    div#content {padding: 10px 75px;}
+    #members-head {
+        height: 7vw;
+    }
+    #history-head {
+        height: 7vw;
+    }
 }
 
 #header .logo {
@@ -123,7 +130,6 @@ input[type=submit], a.button {
     background:#12c064;
     color:#fff;
     padding:10px 20px;
-    font-size:14px;
     text-transform:uppercase;
 }
 .errorlist {
@@ -137,7 +143,6 @@ input[type=submit], a.button {
     color:#aaa;
     clear:both;
     float:left;
-    font-size:13px;
 }
 
 .login-form {

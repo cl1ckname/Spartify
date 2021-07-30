@@ -1,13 +1,13 @@
 ''' Some logic that made sense to move to a separate file '''
 
 import datetime
-from requests import api
 from backend.utils import clear_track, track_full_name
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from lobby.models import Lobby
 from backend.models import User
 from lobby.forms import JoinLobby, LobbyForm
+from backend.SpotifyAPI import api
 
 
 def _add_to_lobby(user, lobby_pin):
@@ -63,7 +63,7 @@ def add_history(request, lobby: Lobby, link: str):
     ''' Adds track information to the lobby history '''
     track_id = clear_track(link)
     track_raw = api.get_track(track_id, lobby.owner.oauth_token)
-    to_json = {'title': track_full_name(track_raw), 'time': datetime.now(
+    to_json = {'title': track_full_name(track_raw), 'time': datetime.datetime.now(
     ).strftime('%H:%M'), 'user': request.user.username}
     if len(lobby.history) > 9:
         lobby.history = lobby.history[0:9]  #max len of history - 10 tracks
@@ -75,6 +75,6 @@ def _unban_users(to_unban: list, lobby: Lobby):
         for user_id in to_unban:
             user = User.objects.get(id=int(user_id))
             lobby.ban_list.remove(user)
-    except ObjectDoesNotExist:
+    except User.DoesNotExist:
         raise ValidationError("Unban error")
         
