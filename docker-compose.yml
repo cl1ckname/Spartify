@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  web:
+    build: .
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1;
+             done;python manage.py migrate; 
+             python manage.py runserver 0.0.0.0:8000'
+    volumes:
+      - .:/usr/src/app/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
+  db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=dj
+      - POSTGRES_PASSWORD=dj
+      - POSTGRES_DB=hello_django_dev
+volumes: 
+    postgres_data:

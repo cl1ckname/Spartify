@@ -6,3 +6,5 @@ spartify/__pycache__
 trash.ipynb
 db.sqlite3
 logs/*.log
+.env.dev
+entrypoint.sh
