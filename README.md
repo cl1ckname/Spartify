@@ -4,8 +4,6 @@
 
 Spartify is a collaborative queue management service on  [Spotify](https://www.spotify.com/)
 
-[![video](https://youtu.be/wmBegp7xunU)]
-
 ## Why?
 
 Usually, in a large group of friends, exactly one person turns on the music. This is logical because there is only one person who is the source of the music. From my own experience I can say that this person is constantly asked to "turn on __this__ track", add an album to the queue, turn it down / up. Or vice versa, the whole company wants to listen to some artist, but the __host__ does not include him in any. These and other problems should be solved by Spartify.
@@ -22,12 +20,31 @@ Usually, in a large group of friends, exactly one person turns on the music. Thi
  - [ ] Creating a beautiful frontend
  - [ ] Upload the application to stable hosting
  - [ ] Play music in big campaigns with ease!
- - [ ] Build the application into a Docker container
+ - [x] Build the application into a Docker container
  - [ ] Realize API
  - [ ] ~~Make a lot of money~~
     - [ ] ~~Make a some money~~
         - [x] ~~Make a little money~~
  - [x] Append README.md
+
+## Docker
+To build spartify into a docker container, you need to create file:
+.env.dev:
+  ```
+  SOCIAL_AUTH_SPOTIFY_KEY=<your_spotify_app_key>
+  SOCIAL_AUTH_SPOTIFY_SECRET=<your_spotify_secret_key>
+  SECRET_KEY=<django_secret>
+  SQL_ENGINE=django.db.backends.postgresql
+  SQL_DATABASE=<datebase>
+  SQL_USER=<postgre_user>
+  SQL_PASSWORD=<postgre_password>
+  SQL_HOST=<postgre_host>
+  SQL_PORT=5432
+  DATABASE=postgres
+  DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+  ``` 
+in the root folder of the project.
+Build command: `docker-compose up -d --build`
 
 ## About other Spartify projects
 
