@@ -2,23 +2,31 @@ version: '3.7'
 
 services:
   web:
-    build: .
-    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1;
-             done;python manage.py migrate; 
-             python manage.py runserver 0.0.0.0:8000'
+    build:
+      context: .
+    command: gunicorn spartify.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - .:/usr/src/app/
-    ports:
-      - 8000:8000
+      - static_volume:/usr/src/app/staticfiles
+    expose:
+      - 8000
     env_file:
       - ./.env.dev
+    depends_on:
+      - db
   db:
     image: postgres:latest
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=dj
-      - POSTGRES_PASSWORD=dj
-      - POSTGRES_DB=hello_django_dev
+    env_file:
+      - ./.env.prod.db
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
+    ports:
+      - 1337:80
+    depends_on:
+      - web
 volumes: 
     postgres_data:
+    static_volume:

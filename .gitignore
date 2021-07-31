@@ -8,3 +8,6 @@ db.sqlite3
 logs/*.log
 .env.dev
 entrypoint.sh
+.env.prod
+.env.prod.db
+docker-compose.prod.yml

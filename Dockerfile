@@ -1,9 +1,12 @@
 FROM python:3.8.10-slim-buster
 
-WORKDIR /usr/src/app
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV APP_HOME=/usr/src/app
+RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/staticfiles
+WORKDIR $APP_HOME
 
 RUN pip install --upgrade pip
 COPY ./requirements.txt .
