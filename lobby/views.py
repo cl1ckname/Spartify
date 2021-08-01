@@ -1,13 +1,11 @@
-from datetime import datetime
+from backend.SpotifyAPI.tracks import Track
 from random import randint
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
-from django.views.generic.base import TemplateView
 from lobby.services import _ban_user, _leave_from_lobby, _remove_users_from_lobby, _try_add_to_lobby, _unban_users, add_history
-from backend.utils import clear_track, track_full_name
 from .models import Lobby, User
 from backend.forms import AddTrackForm
 from lobby.forms import BanForm, JoinLobby, LobbyForm, MaxMembersForm
@@ -108,14 +106,11 @@ class LobbyView(SafeView):
         else:
             raise Http404
 
-    
-
     def get_page_data(self) -> dict:
-        track = api.get_user_playback(self.owner.oauth_token)
-        name = track_full_name(track)
+        track = Track(self.owner.oauth_token)
         history = self.this_lobby.history
         ban_list = self.this_lobby.ban_list.all()
-        return {'section': 'lobby','lobby': self.this_lobby, 'members': self.members, 'track': name, 'form': self.form,
+        return {'section': 'lobby','lobby': self.this_lobby, 'members': self.members, 'track': track, 'form': self.form,
                 'owner': self.owner.username, 'history': history, 'is_owner': (self.owner==self.request.user),
                 'mmf': MaxMembersForm(num_members=3), 'ban_form': BanForm(), 'ban_list': ban_list}
 
@@ -129,12 +124,11 @@ def ajax_add_track(request) -> JsonResponse:
             lobby_id = int(request.POST['add_to'])
             lobby = Lobby.objects.get(id=lobby_id)
 
-            uri = clear_track(link)
-            api.add_queue(uri, lobby.owner.oauth_token)
-            track_name = track_full_name(api.get_track(uri, lobby.owner.oauth_token))
+            track = Track(lobby.owner.oauth_token, link)
+            track.to_queue()
 
-            add_history(request, lobby, link)
-            return JsonResponse({'title': track_name, 'username': request.user.username}, status=200)
+            add_history(request.user.username, lobby, track.name)
+            return JsonResponse({'title': track.name, 'username': request.user.username}, status=200)
         else:
             return JsonResponse({'errors': form.errors}, status=400)
     else:

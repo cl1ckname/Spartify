@@ -7,7 +7,7 @@ from .SpotifyAPI.api_errors import AuthenticationError, RegularError
 
 api_logger = getLogger(__name__)
 
-def _get_error_response(self, request: http.HttpRequest, e: Exception) -> http.response.HttpResponseBase:
+def _get_error_response(request: http.HttpRequest, e: Exception) -> http.response.HttpResponseBase:
     if isinstance(e, AuthenticationError):
         api_logger.error(e, extra={'username': request.user.username, 'endpoint': e.endpoint, 'status_code': e.status})
         return redirect('authentication_error')

@@ -2,8 +2,9 @@ from django.contrib.auth import logout
 from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from backend.utils import track_full_name, clear_track, _make_devices_list
-from lobby.lobby import Queue
+from backend.SpotifyAPI.tracks import Track
+from backend.utils import _make_devices_list
+from lobby.queue import Queue
 from backend.SpotifyAPI import api
 from .forms import AddTrackForm
 
@@ -23,20 +24,15 @@ def dashboard(request):
     token = user.oauth_token
 
     if token:
-        track = api.get_user_playback(token)
-        name = track_full_name(track)
+        track = Track(token)
         user_info = api.get_me(token)
     else:
         raise Exception('No TOKEN')
-    form = AddTrackForm()
-    names = []
-    for link in queue.get_links():
-        resp = api.get_track(link, token)
-        title = track_full_name(resp)
-        names.append(title)
 
-    info = zip(names, queue.get_times(), queue.get_users())
-    return render(request, 'backend/dashboard.html', {'section': 'dashboard', 'track': name, 'form': form,
+    form = AddTrackForm()
+    
+    info = zip(queue.get_names(), queue.get_times(), queue.get_users())
+    return render(request, 'backend/dashboard.html', {'section': 'dashboard', 'track': track, 'form': form,
                                                       'info': info, 'user_info': user_info})
 
 
@@ -57,18 +53,21 @@ def devices(request):
 
 @login_required
 def post_queue(request):
+    print(132132131)
+    print(request.method == 'POST', request.is_ajax())
+    username = request.user.username
     if request.method == 'POST' and request.is_ajax():
         form = AddTrackForm(data = request.POST)
         if form.is_valid():
             queue = Queue(request)
             token = request.user.oauth_token
             link = request.POST['link']
-            uri = clear_track(link)
-            api.add_queue(uri, token)
-            queue.add(request.POST['link'], request.user.username)
-            track_id = clear_track(link)
-            track_name = track_full_name(api.get_track(track_id, token))
-            return JsonResponse({'title': track_name, 'username': request.user.username}, status=200)
+
+            track = Track(token, link)
+            track.to_queue()
+            queue.add(track.name, username)
+
+            return JsonResponse({'title': track.name, 'username': username}, status=200)
         else:
             return JsonResponse({'errors': form.errors}, status=400)
 

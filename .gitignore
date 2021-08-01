@@ -2,7 +2,14 @@
 .vscode
 .ipynb_checkpoints
 backend/__pycache__
+backend/SpotifyAPI/__pycache__
 spartify/__pycache__
 trash.ipynb
 db.sqlite3
 logs/*.log
+staticfiles/*
+entrypoint.sh
+.env.dev
+.env.prod
+.env.prod.db
+lobby/__pycache__

@@ -1,7 +1,7 @@
 ''' Some logic that made sense to move to a separate file '''
 
+from backend.SpotifyAPI.tracks import Track
 import datetime
-from backend.utils import clear_track, track_full_name
 from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from lobby.models import Lobby
@@ -59,12 +59,10 @@ def _leave_from_lobby(id:int):
     member.save()
     return redirect('/lobby')
 
-def add_history(request, lobby: Lobby, link: str):
+def add_history(username: str, lobby: Lobby, name: str):
     ''' Adds track information to the lobby history '''
-    track_id = clear_track(link)
-    track_raw = api.get_track(track_id, lobby.owner.oauth_token)
-    to_json = {'title': track_full_name(track_raw), 'time': datetime.datetime.now(
-    ).strftime('%H:%M'), 'user': request.user.username}
+    to_json = {'title': name, 'time': datetime.datetime.now(
+    ).strftime('%H:%M'), 'user': username}
     if len(lobby.history) > 9:
         lobby.history = lobby.history[0:9]  #max len of history - 10 tracks
     lobby.history = [to_json] + lobby.history

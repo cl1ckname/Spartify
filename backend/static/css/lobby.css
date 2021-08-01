@@ -81,12 +81,11 @@
 #delete{
     padding: 0;
     display: flex;
-    align-self: flex-end;
+    overflow: visible;
+    font-size: 0.6em;
 }
 #delete button{
     position: relative;
-    bottom: 0;
-    font-weight: bold;
     background: #c01212;
     color: #fff;
     padding: 10px 10px;

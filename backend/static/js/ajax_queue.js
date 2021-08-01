@@ -15,6 +15,7 @@ $(document).ready(function () {
             type: $(this).attr('method'), 
             url: "/ajax/add_queue",
             success: function (response) {
+                console.log(122);
                 $("#add_sub").trigger('reset');
                 var Data = new Date();
                 var minutes = Data.getMinutes();

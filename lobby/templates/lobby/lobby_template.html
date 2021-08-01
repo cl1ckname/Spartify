@@ -17,13 +17,23 @@
         {% comment %} <h1 style="color: #999999; margin-left: 5%"> Owner - {{owner}} </h1>
         <h1 id="members_count">Members: {{lobby.num_members}}</h1> {% endcomment %}
         <h1>
-             Lobby #{{lobby.id}}
+            Lobby #{{lobby.id}}
             <small class="text-muted">
                 Owner - {{owner}}
             </small>
             <small class="text-muted">
                 Members: {{lobby.num_members}}
             </small>
+
+            <form action = "{{id}}" method="post" id = "delete">
+                {% if is_owner %}
+                    {% csrf_token %}
+                    <button name="leave" value="{{request.user.id}}" type="submit">Leave</button>
+                {% else %}
+                    {% csrf_token %}
+                    <button name="delete" value="{{lobby.id}}" type="submit">Delete</button>
+                {% endif %}
+            </form>
         </h1>
     </div>
     {% if is_owner %}
@@ -35,9 +45,8 @@
     <div id="switch_box">
         <div class="row justify-content-between">
             <div class="container col-6 {% if request.GET.p == "settings" %} moveLeft {% endif %}" id="overview">
-                <div class="row" id = "lobby_container">
-                    <div class="col-10 col-lg-11 pb-2 mb-3">
-                        <p>Now playing: {{track}}</p>
+                <div class="row mb-3" id = "lobby_container">
+                    <div class="col-10 col-lg-5 col-xl-7 pb-2 mb-3">
                         <form id="add_track" method="post">
                             {{ form.as_p }}
                             {% csrf_token %}
@@ -45,20 +54,23 @@
                             <input type="submit" value="ADD"></input>
                         </form>
                     </div>
-                    <div class="col-2 col-lg-1 pb-2 mb-3" id = "delete">
-                        {% if is_owner %}
-                            <form action = "{{id}}" method="post">
-                                {% csrf_token %}
-                                <button name="delete" value="{{lobby.id}}" type="submit">Delete</button>
-                            </form>
-                        {% else %}
-                            <form action = "{{id}}" method="post">
-                                {% csrf_token %}
-                                <button name="leave" value="{{request.user.id}}" type="submit">Leave</button>
-                            </form>
-                        {% endif %}
+                    <div class="col-lg-7 col-xl-5 order-first order-lg-last">
+                        <div class="card text-center mt-1">
+                            <div class="card-header">Now playing</div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-8 border-end">
+                                            <h4 class="card-title">{{track.title|default:"Nothing"}}</h4>
+                                            <p class="card-text"> {{ track.show_artists|default:"absolutly" }} </p>
+                                        </div>
+                                        <div class="col-4">
+                                            <img src="{{track.image}}" alt="" class="card-img img-fluid" style="border-radius: 50%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
                 <div class="row justify-content-between" id="lobby_container">
                     <div class="col-md-6">
                         <form class = "ov-form" id="remove_members" method="post">
