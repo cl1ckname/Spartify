@@ -4,6 +4,7 @@ from django import http
 from django.views.generic.base import TemplateView
 from django.shortcuts import redirect
 from .SpotifyAPI.api_errors import AuthenticationError, RegularError
+from django.conf import settings
 
 api_logger = getLogger(__name__)
 
@@ -15,9 +16,12 @@ def _get_error_response(request: http.HttpRequest, e: Exception) -> http.respons
         api_logger.error(e, extra={'username': request.user.username, 'endpoint': e.endpoint, 'status_code': e.status})
         return redirect('server_error')
     else:
-        return http.response.JsonResponse(
-            {'errorMessage': str(traceback.format_exc())}, status = 400
-        )
+        if settings.DEBUG:
+            return http.response.JsonResponse(
+                {'errorMessage': str(traceback.format_exc())}, status = 400
+            )
+        else:
+            return redirect("")
 
 class SafeView(TemplateView):
     ''' Process exceptions '''

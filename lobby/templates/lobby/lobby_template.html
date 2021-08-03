@@ -26,7 +26,7 @@
             </small>
 
             <form action = "{{id}}" method="post" id = "delete">
-                {% if is_owner %}
+                {% if not is_owner %}
                     {% csrf_token %}
                     <button name="leave" value="{{request.user.id}}" type="submit">Leave</button>
                 {% else %}

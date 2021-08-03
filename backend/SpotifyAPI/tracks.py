@@ -40,7 +40,7 @@ class Track:
 
     def _clear_link(self, link) -> str:
         ''' Returns id of track from link '''
-        pattern = r'(https:\/\/open\.spotify\.com\/track\/)([0-9a-zA-Z]*)(\?si=[0-9a-z]*)'
+        pattern = r'(https:\/\/open\.spotify\.com\/track\/)([0-9a-zA-Z]*)(\?si=[0-9a-z]*)?'
         result = re.search(pattern, link)
         if not result:
             raise ValueError

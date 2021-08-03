@@ -23,7 +23,7 @@ def track_to_string(track: tuple):
 
 def clear_track(link: str) -> str:
     ''' Returns id of track from link '''
-    pattern = r'(https:\/\/open\.spotify\.com\/track\/)([0-9a-zA-Z]*)(\?si=[0-9a-z]*)'
+    pattern = r'(https:\/\/open\.spotify\.com\/track\/)([0-9a-zA-Z]*)(\?si=[0-9a-z]*)?'
     result = re.search(pattern, link)
     if not result:
         raise ValueError

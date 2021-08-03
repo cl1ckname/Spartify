@@ -12,7 +12,6 @@ $(document).ready(function(){
         settings_button.style.background = "#bbb";
         history.pushState(null, null, baseUrl + "?p=settings");
     };
-    console.log(overview_button.click);
     overview_button.onclick = function(){
         overview_box.removeClass("moveLeft")
         settings_box.removeClass("moveLeft");

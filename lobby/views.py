@@ -1,3 +1,4 @@
+from lobby.consumers import LobbyConsumer
 from backend.SpotifyAPI.tracks import Track
 from random import randint
 from django.http.response import JsonResponse
@@ -5,6 +6,8 @@ from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from lobby.services import _ban_user, _leave_from_lobby, _remove_users_from_lobby, _try_add_to_lobby, _unban_users, add_history
 from .models import Lobby, User
 from backend.forms import AddTrackForm
@@ -28,7 +31,7 @@ def lobby(request):
                 return render(request, 'lobby/lobby.html', data)
 
         elif max_members:
-            _lobby = Lobby(id = randint(0,9999), owner = user, max_members=max_members, num_members=1)
+            _lobby = Lobby(id = randint(0,9999), owner = user, max_members=int(max_members), num_members=1)
             _lobby.save()
             id = _lobby.id
             user.lobby_in = _lobby
@@ -52,6 +55,7 @@ class LobbyView(SafeView):
     owner = None
     form = None
     username = None
+    channel_layer = get_channel_layer()
 
     def get(self, request, lobby_id=0, *args, **kwargs) -> HttpResponse:
         ''' Creates a form and returns a page render if the request method is GET '''
@@ -64,6 +68,7 @@ class LobbyView(SafeView):
         self.username = request.user.username
         data = dict(request.POST)
         leave = data.get('leave')
+        to_unban = request.POST.getlist('to_unban')
         if isinstance(leave, list):
             leave = int(leave[0])
         username = data.get('username')
@@ -77,7 +82,13 @@ class LobbyView(SafeView):
             if ban_form.is_valid():
                 if isinstance(username, list):
                     username = username[0]
+                channel_name = "lobby_%s" % lobby_id
+                async_to_sync(self.channel_layer.group_send)(channel_name,{'type': f'ban',"username": username})
                 _ban_user(self.this_lobby, username)
+        elif to_unban:
+            lobby_id = int(request.POST.get('lobby_id'))
+            channel_name = "lobby_%s" % lobby_id
+            async_to_sync(self.channel_layer.group_send)(channel_name,{'type': f'unban',"unbanned": to_unban})
         elif leave:
             return _leave_from_lobby(leave)
         else:
@@ -107,6 +118,7 @@ class LobbyView(SafeView):
             raise Http404
 
     def get_page_data(self) -> dict:
+        ''' Collect all data in one dict to '''
         track = Track(self.owner.oauth_token)
         history = self.this_lobby.history
         ban_list = self.this_lobby.ban_list.all()
@@ -149,12 +161,17 @@ def ajax_remove_members(request) -> JsonResponse:
 
 @login_required
 def ajax_ban_user(request) -> JsonResponse:
+    print('getted')
     if request.method == 'POST' and request.is_ajax():
         username = request.POST['username']
-        lobby_id = request.POST['lobby_id']
+        user = User.objects.get(username=username)
+        lobby = request.user.lobby_in
+        channel_layer = get_channel_layer()
+        channel_name = "lobby_%s" % lobby.id
+        async_to_sync(channel_layer.group_send)(channel_name,{'type': f'ban',"username": username, 'userid': user.id})
+
         ban_form = BanForm(data=request.POST)
         if ban_form.is_valid():
-            lobby = Lobby.objects.get(id = int(lobby_id))
             _ban_user(lobby, username)
             return JsonResponse({'username': username}, status=200)
 
@@ -164,8 +181,14 @@ def ajax_ban_user(request) -> JsonResponse:
 @login_required
 def ajax_unban_user(request) -> JsonResponse:
     if request.method == 'POST' and request.is_ajax():
+        print(request.POST, 112)
         to_unban = request.POST.getlist('to_unban')
         lobby_id = int(request.POST.get('lobby_id'))
+
+        channel_layer = get_channel_layer()
+        channel_name = "lobby_%s" % lobby_id
+        async_to_sync(channel_layer.group_send)(channel_name,{'type': f'unban',"unbanned": to_unban})
+        
         _unban_users(to_unban, Lobby.objects.get(id=lobby_id))
         return JsonResponse({'unbanned': to_unban}, status=200)
     else:
