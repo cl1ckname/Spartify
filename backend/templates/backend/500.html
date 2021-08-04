@@ -1,0 +1,20 @@
+{% load static %}
+<html>
+    <head>
+        <link href="{% static "css/base.css" %}" rel="stylesheet">
+        <link href="{% static "css/big_elements.css" %}" rel="stylesheet">
+    </head>
+</html>
+<body>
+    <div class="content">
+        <h2 class="big-title">Oh no it's <b>500 ERROR</b> </h2>
+        <p class="header-text">
+            An error has occurred on the server! Let us know by e-mail, 
+            and we will cut the salary of programmers in half (haha, do not worry, 0/2 = 0).
+            <a href="{% url "social:begin" "spotify" %}">I am stubborn</a>.
+        </p>
+        <div class="flex-center">
+             <a href="{% url "social:begin" "spotify" %}"> <button class="big_button">Back to bugs</button> </a>
+        </div>
+    </div>
+</body>

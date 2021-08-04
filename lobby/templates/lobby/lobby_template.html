@@ -5,11 +5,10 @@
     <link href="{% static "css/lobby.css" %}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="{% static "js/services.js" %}"> </script>
+    <script src="{% static "js/websockets.js" %}" type="module"> </script>
     <script src="{% static "js/switch-menu.js" %}"> </script>
-    <script src="{% static "js/ajax_lobby_add_track.js" %}"> </script>
-    <script src="{% static "js/ajax_remove_members.js" %}"> </script>
-    <script src="{% static "js/ajax_ban_user.js" %}"> </script>
-    <script src="{% static "js/ajax_unban_users.js" %}"> </script>
+
 {% endblock %}
 {% block content %}
     <div id="headers">
@@ -83,7 +82,7 @@
                                 {% endif %}
                             </div>
                             <div id="members">
-                                <ul class="list-group">
+                                <ul class="list-group" id="list-members">
                                     {% for member in members %}
                                         <li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-{{member.id}}">
                                             {{member.username}} {% if is_owner and lobby.owner.id != member.id %} <input class="form-check-input" type="checkbox" name = "to_delete" value = "{{member.id}}"> {% endif %}
@@ -98,7 +97,7 @@
                             <h3> History </h3>
                         </div>
                         <div id="history">
-                            <ul class = "group-list" id="list-history">
+                            <ul class = "list-group" id="list-history">
                                 {% for song in history %}
                                     <li class="list-group-item list-group-item-action"> {{ song.title }} {{ song.date }} by {{song.user}} </li>
                                 {% endfor %}

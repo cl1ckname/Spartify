@@ -1,5 +1,5 @@
 from django.contrib.auth import logout
-from django.http.response import HttpResponse, JsonResponse
+from django.http.response import HttpResponse, HttpResponseServerError, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from backend.SpotifyAPI.tracks import Track
@@ -12,9 +12,11 @@ from .forms import AddTrackForm
 def user_login(request):
     return render(request, 'backend/login.html')
 
+
 def user_logout(request):
     logout(request)
     return render(request, 'backend/logout.html')
+
 
 @login_required
 def dashboard(request):
@@ -30,7 +32,7 @@ def dashboard(request):
         raise Exception('No TOKEN')
 
     form = AddTrackForm()
-    
+
     info = zip(queue.get_names(), queue.get_times(), queue.get_users())
     return render(request, 'backend/dashboard.html', {'section': 'dashboard', 'track': track, 'form': form,
                                                       'info': info, 'user_info': user_info})
@@ -48,7 +50,7 @@ def devices(request):
 
     devices_list = _make_devices_list(data)
 
-    return render(request, 'backend/devices.html', {'section': 'devices','devices_list': devices_list})
+    return render(request, 'backend/devices.html', {'section': 'devices', 'devices_list': devices_list})
 
 
 @login_required
@@ -57,7 +59,7 @@ def post_queue(request):
     print(request.method == 'POST', request.is_ajax())
     username = request.user.username
     if request.method == 'POST' and request.is_ajax():
-        form = AddTrackForm(data = request.POST)
+        form = AddTrackForm(data=request.POST)
         if form.is_valid():
             queue = Queue(request)
             token = request.user.oauth_token
@@ -71,9 +73,16 @@ def post_queue(request):
         else:
             return JsonResponse({'errors': form.errors}, status=400)
 
+
 def authentication_error(request):
     logout(request)
     return render(request, 'backend/authentication_error.html')
 
-def server_error(request):
-    return HttpResponse('server error')
+
+def handler500er(request):
+    logout(request)
+    return render(request, 'backend/error_500.html')
+
+def handler400(request):
+    logout(request)
+    return render(request, 'backend/error_500.html')

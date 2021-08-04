@@ -30,6 +30,7 @@ class Track:
                 self.image = self._data['item']['album']['images'][0]['url']
             except KeyError:
                 self.image = self._data['album']['images'][0]['url']
+        print(self.name)
 
     def to_queue(self):
         print(self.id)

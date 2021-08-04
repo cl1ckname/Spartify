@@ -1,0 +1,19 @@
+{% load static %}
+<html>
+    <head>
+        <link href="{% static "css/base.css" %}" rel="stylesheet">
+        <link href="{% static "css/big_elements.css" %}" rel="stylesheet">
+    </head>
+</html>
+<body>
+    <div class="content">
+        <h2 class="big-title">Stop! Wait...</h2>
+        <p class="header-text">
+            No such lobby could be found. Maybe you made a mistake with the pin. If not then it might be worth
+            <a href="/lobby?p=create">creating</a> it?
+        </p>
+        <div class="flex-center">
+             <a href="/lobby?p=create"> <button class="big_button">Create</button> </a>
+        </div>
+    </div>
+</body>

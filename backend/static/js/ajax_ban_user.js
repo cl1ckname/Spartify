@@ -29,7 +29,7 @@ var socket = new WebSocket(endpoint);
 
 socket.onmessage = function(e){
     var data = JSON.parse(e.data)
-    if (data['username']){
+    if (data['username'] && ! data['title']){
         ban(data)
     }
 }
@@ -41,11 +41,11 @@ $(document).ready(function () {
             type: $(this).attr('method'),
             dataType: 'json',
             url: "/lobby/ajax/ban_user",
-            success: function(){},
+            success: function(response){return false;},
             error: function (response) {
                 alert(response['errors']);
             }
         });
-        return false;
+        
     });
 })

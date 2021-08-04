@@ -6,17 +6,23 @@ Spartify is a collaborative queue management service on  [Spotify](https://www.s
 
 ## Why?
 
-Oh no, my mom call me to dinner, i make it later
+Usually, in a large group of friends, exactly one person turns on the music. This is logical because there is only one person who is the source of the music. From my own experience I can say that this person is constantly asked to "turn on __this__ track", add an album to the queue, turn it down / up. Or vice versa, the whole company wants to listen to some artist, but the __host__ does not include him in any. These and other problems should be solved by Spartify.
 
 ![Doge](https://media.giphy.com/media/jTHtY5651ipk5agEuH/giphy.gif)
 
 ## To do
 
- - [ ] Add the ability to add tracks to your queue using the site
+ - [x] Append README.md
+ - [x] Add the ability to add tracks to your queue using the site
  - [x] Ability to create a lobby and get a pin code for it
- - [ ] Add settings for lobbies
+ - [x] Add settings for lobbies
+    - [ ] Add more settings to lobbies
+       - [ ] Ban list for tracks
+       - [ ] Limit on the number of tracks for each user
+ - [x] Registration for premium Spotify users and simple users 
+ - [ ] Add votes for the next track
+ - [ ] Add lobby privileges
  - [ ] Ability add playlists and albums to queue
- - [ ] Registration for premium Spotify users and simple users 
  - [ ] Creating a beautiful frontend
  - [ ] Upload the application to stable hosting
  - [ ] Play music in big campaigns with ease!
@@ -25,16 +31,36 @@ Oh no, my mom call me to dinner, i make it later
  - [ ] ~~Make a lot of money~~
     - [ ] ~~Make a some money~~
         - [x] ~~Make a little money~~
- - [ ] Append README.md
+ - [ ] Write a lot of tests
+ - [ ] Add unusual statistic for users on dashboard
 
-## How it will work
+## Docker
+__At another branch!__  
+To build spartify into a docker container, you need to create file:
+.env.dev:
+  ```
+  SOCIAL_AUTH_SPOTIFY_KEY=<your_spotify_app_key>
+  SOCIAL_AUTH_SPOTIFY_SECRET=<your_spotify_secret_key>
+  SECRET_KEY=<django_secret>
+  SQL_ENGINE=django.db.backends.postgresql
+  SQL_DATABASE=<datebase>
+  SQL_USER=<postgre_user>
+  SQL_PASSWORD=<postgre_password>
+  SQL_HOST=<postgre_host>
+  SQL_PORT=5432
+  DATABASE=postgres
+  DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+  ``` 
+in the root folder of the project.
+Build command: `docker-compose up -d --build`
 
-I will write this later
+## About other Spartify projects
 
-## SpotifyApi
-
-Since this is just my pet project, I want to implement everything myself, maybe not in the best way. Therefore, there is a file `/backend/spotify.py` inside. It implements the API class on top of `requests`.
-![Proof that code there are](https://sun9-41.userapi.com/impg/8u4KWMFZ8_JMJg45ihXz-kl2q1056F78T8x_xw/4ba-NWUiEkM.jpg?size=909x411&quality=96&sign=811ce404aff0ab0c13787f2bc4dc6e8f&type=album)
+Recently I stumbled upon several projects of the same name by chance. I haven't heard of any of them, but the name and purpose coincide with some. I hope their developers will not be offended by me. I consider it necessary to leave links to their repositories:
+* https://github.com/ysomad/spartify
+* https://github.com/blixt/spartify
+* https://github.com/rphammy/Spartify
+* https://github.com/YuhuaBillChen/Spartify
 
 ## Help
 
