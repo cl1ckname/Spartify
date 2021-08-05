@@ -1,13 +1,11 @@
 ''' Some logic that made sense to move to a separate file '''
 
-from backend.SpotifyAPI.tracks import Track
 import datetime
 from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from lobby.models import Lobby
 from backend.models import User
 from lobby.forms import JoinLobby, LobbyForm
-from backend.SpotifyAPI import api
 
 
 def _add_to_lobby(user, lobby_pin):

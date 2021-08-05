@@ -1,7 +1,6 @@
 import traceback
 from logging import getLogger
 from django import http
-from django.http.response import HttpResponse
 from django.views.generic.base import TemplateView
 from django.shortcuts import redirect, render
 from .SpotifyAPI.api_errors import AuthenticationError, RegularError

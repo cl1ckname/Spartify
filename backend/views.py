@@ -1,5 +1,5 @@
 from django.contrib.auth import logout
-from django.http.response import HttpResponse, HttpResponseServerError, JsonResponse
+from django.http.response import JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from backend.SpotifyAPI.tracks import Track

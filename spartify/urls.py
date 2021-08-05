@@ -1,7 +1,5 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.conf.urls import handler500
-from backend.views import handler500er
 
 urlpatterns = [
     path('admin/', admin.site.urls),

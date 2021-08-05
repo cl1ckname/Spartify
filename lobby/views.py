@@ -1,4 +1,3 @@
-from lobby.consumers import LobbyConsumer
 from backend.SpotifyAPI.tracks import Track
 from random import randint
 from django.http.response import JsonResponse
@@ -177,7 +176,7 @@ def ajax_remove_members(request) -> JsonResponse:
         async_to_sync(channel_layer.group_send)(channel_name, {
             'type': 'send_lobby', 'event': 'remove_members', 'to_delete': to_delete})
 
-        # _remove_users_from_lobby(to_delete, lobby)
+        _remove_users_from_lobby(to_delete, lobby)
         if not isinstance(to_delete, list):
             to_delete = [to_delete]
         return JsonResponse({'to_delete': to_delete}, status=200)
