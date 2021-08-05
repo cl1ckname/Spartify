@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from lobby.services import _ban_user, _leave_from_lobby, _remove_users_from_lobby, _try_add_to_lobby, _unban_users, add_history
+from lobby.services import _leave_from_lobby, _try_add_to_lobby
 from .models import Lobby, User
 from backend.forms import AddTrackForm
 from lobby.forms import BanForm, JoinLobby, LobbyForm, MaxMembersForm
@@ -92,7 +92,7 @@ class LobbyView(SafeView):
             ban_form = BanForm(data=request.POST)
             if ban_form.is_valid():
                 self.send_websocket_data(type='send_lobby', username=username)
-                _ban_user(self.this_lobby, username)
+                self.this_lobby.ban_user(username)
         elif to_unban:
             lobby_id = int(request.POST.get('lobby_id'))
             channel_name = 'lobby_%s' % lobby_id
@@ -150,13 +150,14 @@ def ajax_add_track(request) -> JsonResponse:
             lobby = Lobby.objects.get(id=lobby_id)
 
             track = Track(lobby.owner.oauth_token, link)
+            track.to_queue()
 
             channel_layer = get_channel_layer()
             channel_name = 'lobby_%s' % lobby.id
             async_to_sync(channel_layer.group_send)(channel_name, {
                 'type': 'send_lobby', 'event': 'add_track', 'title': track.name, 'username': request.user.username})
 
-            add_history(request.user.username, lobby, track.name)
+            lobby.add_history(request.user.username, track.name)
             return JsonResponse({'title': track.name, 'username': request.user.username}, status=200)
         else:
             return JsonResponse({'errors': form.errors}, status=400)
@@ -176,7 +177,7 @@ def ajax_remove_members(request) -> JsonResponse:
         async_to_sync(channel_layer.group_send)(channel_name, {
             'type': 'send_lobby', 'event': 'remove_members', 'to_delete': to_delete})
 
-        _remove_users_from_lobby(to_delete, lobby)
+        lobby.remove_users(to_delete)
         if not isinstance(to_delete, list):
             to_delete = [to_delete]
         return JsonResponse({'to_delete': to_delete}, status=200)
@@ -198,7 +199,7 @@ def ajax_ban_user(request) -> JsonResponse:
 
         ban_form = BanForm(data=request.POST)
         if ban_form.is_valid():
-            _ban_user(lobby, username)
+            lobby.ban_user(username)
             return JsonResponse({'username': username}, status=200)
     else:
         return JsonResponse({'errors': 'Not post or ajax'}, status=400)
@@ -210,13 +211,14 @@ def ajax_unban_user(request) -> JsonResponse:
         print(request.POST, 112)
         to_unban = request.POST.getlist('to_unban')
         lobby_id = int(request.POST.get('lobby_id'))
+        lobby = Lobby.objects.get(id=lobby_id)
 
         channel_layer = get_channel_layer()
         channel_name = 'lobby_%s' % lobby_id
         async_to_sync(channel_layer.group_send)(
             channel_name, {'type': 'send_lobby', 'event': 'unban', 'unbanned': to_unban})
 
-        _unban_users(to_unban, Lobby.objects.get(id=lobby_id))
+        lobby.unban_users(to_unban)
         return JsonResponse({'unbanned': to_unban}, status=200)
     else:
         return JsonResponse({'errors': 'Not post or ajax'}, status=400)

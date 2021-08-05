@@ -170,6 +170,10 @@ LOGGING = {
             'format': '{username} -- {endpoint} -- {status_code:d}: {message}',
             'style': '{',
         },
+        'lobby_formatter': {
+            'format': '{id}--{username}: {message} -- {asctime}',
+            'style': '{',
+        },
     },
     'handlers': {
         'api_errors': {
