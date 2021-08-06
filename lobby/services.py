@@ -6,6 +6,7 @@ from lobby.models import Lobby
 from backend.models import User
 from lobby.forms import JoinLobby, LobbyForm
 
+
 def _try_add_to_lobby(request):
     ''' Validate the user and tries to add him to the lobby '''
     pin = request.POST.get('pin')
@@ -15,13 +16,16 @@ def _try_add_to_lobby(request):
         lobby.add_user(request.user)
         return redirect('/lobby/'+pin)
     except ValidationError as e:
-        form.add_error('pin',e)
+        form.add_error('pin', e)
         data = {'form': form, 'lobby_form': LobbyForm()}
         return render(request, 'lobby/lobby.html', data)
 
-def _leave_from_lobby(id:int):
-    member = User.objects.get(id = id)
+
+def _leave_from_lobby(id: int):
+    member = User.objects.get(id=id)
     member.lobby_in = None
     member.save()
     return redirect('/lobby')
+
+
 

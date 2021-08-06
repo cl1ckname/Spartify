@@ -26,4 +26,4 @@ class RegularError(SpotifyError):
     ''' Apart from the response code, unsuccessful responses return a JSON object containing the following information '''
     def __init__(self, response):
         super(RegularError, self).__init__(response)
-        self.text = response.json().get('message') or 'dibli-dubli'
+        self.text = response.json().get('error_description') or 'unknown_error'

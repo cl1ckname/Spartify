@@ -133,7 +133,8 @@ class SpotifyAPI(object):
             'refresh_token': refresh_token
         }
         r = rq.post(uri, data=data, headers=headers)
-
+        print(r.text)
+        print(refresh_token)
         return r
 
     @check_response
@@ -200,8 +201,10 @@ class SpotifyAPI(object):
 
     def refresh_user(self, user) -> None:
         ''' Checks if the user's token has expired and refreshes it if necessary '''
+        print(1, user.username, user.refresh_token)
         if user.expires.replace(tzinfo=None) < datetime.datetime.now(tz=None):
             refresh_data = self.refresh_token(user.refresh_token)
+            print(2)
             user.oauth_token = refresh_data['access_token']
             user.expires = make_aware(datetime.datetime.now(tz=None)) + datetime.timedelta(seconds=refresh_data['expires_in'])
             user.save()

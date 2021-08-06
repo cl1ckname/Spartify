@@ -1,5 +1,4 @@
 from backend.SpotifyAPI.tracks import Track
-from random import randint
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,11 +9,11 @@ from asgiref.sync import async_to_sync
 from lobby.services import _leave_from_lobby, _try_add_to_lobby
 from .models import Lobby, User
 from backend.forms import AddTrackForm
-from lobby.forms import BanForm, JoinLobby, LobbyForm, MaxMembersForm
+from lobby.forms import BanForm, JoinLobby, LobbyForm, MaxMembersForm, LobbyPassword
 from backend.SpotifyAPI import api
-from backend.services import SafeView
+from backend.services import SafeView, safe_view
 
-
+@safe_view
 @login_required
 def lobby(request):
     user = request.user
@@ -25,20 +24,22 @@ def lobby(request):
             form = JoinLobby(data=request.POST)
             if form.is_valid():
                 lobbyc = Lobby.objects.get(id=pin)
-                response = _try_add_to_lobby(request)
-                channel_layer = get_channel_layer()
-                channel_name = 'lobby_%s' % lobbyc.id
-                async_to_sync(channel_layer.group_send)(channel_name, {
-                    'type': f'add_user', 'username': request.user.username, 'userid': request.user.id})
-                return response
+                if not lobbyc.password:
+                    response = _try_add_to_lobby(request)
+                    channel_layer = get_channel_layer()
+                    channel_name = 'lobby_%s' % lobbyc.id
+                    async_to_sync(channel_layer.group_send)(channel_name, {
+                        'type': f'add_user', 'username': request.user.username, 'userid': request.user.id})
+                    return response
+                else:
+                    return redirect('auth/'+pin)
 
             else:
                 data = {'form': form, 'lobby_form': LobbyForm(),
                         'error': form.errors}
                 return render(request, 'lobby/lobby.html', data)
-
         elif max_members:
-            _lobby = Lobby(id=randint(0, 9999), owner=user,
+            _lobby = Lobby(owner=user,
                            max_members=int(max_members), num_members=1)
             _lobby.save()
             id = _lobby.id
@@ -54,6 +55,21 @@ def lobby(request):
     else:
         return redirect('/lobby/'+str(user.lobby_in.id))
 
+@safe_view
+@login_required
+def auth(request, pin):
+    lobby = Lobby.objects.get(id=pin)
+    if not lobby.password:
+        return redirect('lobby/'+pin)
+    if request.method == 'GET':
+        form = LobbyPassword()
+    else:
+        password = request.POST.get('password')
+        if password == lobby.password:
+            lobby.add_user(request.user)
+            return redirect('/lobby/'+pin)
+        form = LobbyPassword(request.POST)
+    return render(request, 'lobby/auth.html', {'form': form, 'pin': pin})
 
 class LobbyView(SafeView):
     ''' Lobby Page View '''
@@ -78,11 +94,11 @@ class LobbyView(SafeView):
     def post(self, request, lobby_id=0, *args, **kwargs) -> HttpResponse:
         ''' Creates a form and validates it and also returns a page render if the request method is POST'''
         self.username = request.user.username
-        data = dict(request.POST)
+        data = request.POST
         leave = data.get('leave')
         to_unban = request.POST.getlist('to_unban')
-        print(23123)
         username = data.get('username')
+        id_to_delete = data.get('delete')
         try:
             self.set_data(request, lobby_id)
         except ObjectDoesNotExist:
@@ -94,18 +110,16 @@ class LobbyView(SafeView):
                 self.send_websocket_data(type='send_lobby', username=username)
                 self.this_lobby.ban_user(username)
         elif to_unban:
-            lobby_id = int(request.POST.get('lobby_id'))
+            lobby_id = request.POST.get('lobby_id')
             channel_name = 'lobby_%s' % lobby_id
             async_to_sync(self.channel_layer.group_send)(
                 channel_name, {'type': f'send_lobby', 'event':'unban', 'unbanned': to_unban})
         elif leave:
             return _leave_from_lobby(leave)
-        elif request.POST.get('delete'):
-            id_to_delete = request.POST.get('delete')
-            if id_to_delete:
-                if int(id_to_delete) == self.this_lobby.id:
-                    self.this_lobby.delete()
-                    return redirect('/lobby')
+        elif id_to_delete:
+            if id_to_delete == str(self.this_lobby.id):
+                self.this_lobby.delete()
+                return redirect('/lobby')
 
         return self.display_page(request)
 
@@ -116,7 +130,9 @@ class LobbyView(SafeView):
         self.members = User.objects.filter(lobby_in=self.this_lobby)
         self.owner = self.this_lobby.owner
         self.channel_name = 'lobby_%s' % lobby_id
+        print(5)
         api.refresh_user(self.owner)
+        print(5)
 
     def display_page(self, request) -> HttpResponse:
         ''' Collects the view fields in the HttpResponse and checks the user's access to the lobby '''
@@ -146,7 +162,7 @@ def ajax_add_track(request) -> JsonResponse:
         form = AddTrackForm(data=request.POST)
         if form.is_valid():
             link = request.POST['link']
-            lobby_id = int(request.POST['add_to'])
+            lobby_id = request.POST['add_to']
             lobby = Lobby.objects.get(id=lobby_id)
 
             track = Track(lobby.owner.oauth_token, link)
@@ -208,9 +224,8 @@ def ajax_ban_user(request) -> JsonResponse:
 @login_required
 def ajax_unban_user(request) -> JsonResponse:
     if request.method == 'POST' and request.is_ajax():
-        print(request.POST, 112)
         to_unban = request.POST.getlist('to_unban')
-        lobby_id = int(request.POST.get('lobby_id'))
+        lobby_id = request.POST.get('lobby_id')
         lobby = Lobby.objects.get(id=lobby_id)
 
         channel_layer = get_channel_layer()

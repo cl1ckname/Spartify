@@ -7,7 +7,7 @@ from backend.utils import _make_devices_list
 from lobby.queue import Queue
 from backend.SpotifyAPI import api
 from .forms import AddTrackForm
-
+from backend.services import safe_view
 
 def user_login(request):
     return render(request, 'backend/login.html')
@@ -17,7 +17,7 @@ def user_logout(request):
     logout(request)
     return render(request, 'backend/logout.html')
 
-
+@safe_view
 @login_required
 def dashboard(request):
     user = request.user
@@ -37,7 +37,7 @@ def dashboard(request):
     return render(request, 'backend/dashboard.html', {'section': 'dashboard', 'track': track, 'form': form,
                                                       'info': info, 'user_info': user_info})
 
-
+@safe_view
 @login_required
 def devices(request):
     user = request.user
@@ -52,7 +52,7 @@ def devices(request):
 
     return render(request, 'backend/devices.html', {'section': 'devices', 'devices_list': devices_list})
 
-
+@safe_view
 @login_required
 def post_queue(request):
     print(132132131)
@@ -79,10 +79,9 @@ def authentication_error(request):
     return render(request, 'backend/authentication_error.html')
 
 
-def handler500er(request):
+def handler500(request):
     logout(request)
-    return render(request, 'backend/error_500.html')
+    return render(request, 'backend/500.html')
 
-def handler400(request):
-    logout(request)
-    return render(request, 'backend/error_500.html')
+def handler404(request, exception):
+    return render(request, 'backend/404.html')

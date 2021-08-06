@@ -1,10 +1,18 @@
 import datetime
+import shortuuid
 from django.core.exceptions import ValidationError
 from django.db import models
 from backend.models import User
+from shortuuidfield import ShortUUIDField
+
+uid_generator = shortuuid.ShortUUID(
+    alphabet='1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+def _get_short_uuid():
+    return str(uid_generator.uuid())[:5]
 
 class Lobby(models.Model):
-    id = models.PositiveIntegerField(primary_key=True)
+    id = ShortUUIDField(primary_key=True, default = _get_short_uuid)
+    password = models.CharField(max_length=12, blank=True)
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
     history = models.JSONField(default=list, blank=True)
     num_members = models.PositiveIntegerField("num_members")

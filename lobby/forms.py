@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.forms.widgets import PasswordInput
 from lobby.models import Lobby
 from backend.models import User
 
@@ -7,14 +8,14 @@ from backend.models import User
 class PinField(forms.Field):
     ''' Field for pin '''
 
-    def to_python(self, value):
+    def to_python(self, value:str):
         ''' Attempts to convert the entered value to a number '''
         if not value:
             raise ValidationError("Field is empty")
         try:
-            return int(value)
+            return value.upper()
         except ValueError:
-            raise ValidationError("The entered value is not a number")
+            raise ValidationError("The entered value is not a string")
 
     def validate(self, value):
         ''' Checks if a lobby with this number exists '''
@@ -46,10 +47,10 @@ class JoinLobby(forms.Form):
 
 
 class LobbyForm(forms.ModelForm):
-
+    password  = forms.CharField(max_length=12, widget=forms.PasswordInput, required=False)
     class Meta:
         model = Lobby
-        fields = ("max_members",)
+        fields = ("max_members", 'password')
 
 
 class MaxMembersForm(forms.Form):
@@ -67,3 +68,6 @@ class BanForm(forms.Form):
     ''' Form containing a field for username '''
     username = BanField(label="")
     
+class LobbyPassword(forms.Form):
+    ''' Lobby password form on the intermediate page between /lobby and /lobby/PIN '''
+    password = forms.CharField(max_length=12, widget=forms.PasswordInput, required=True)

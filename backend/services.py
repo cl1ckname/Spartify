@@ -1,4 +1,5 @@
 import traceback
+import functools
 from logging import getLogger
 from django import http
 from django.views.generic.base import TemplateView
@@ -14,7 +15,7 @@ def _get_error_response(request: http.HttpRequest, e: Exception) -> http.respons
         return redirect('authentication_error')
     elif isinstance(e, RegularError):
         api_logger.error(e, extra={'username': request.user.username, 'endpoint': e.endpoint, 'status_code': e.status})
-        return redirect('server_error')
+        return render(request,'backend/500.html',status=500)
     else:
         if settings.DEBUG:
             return http.response.JsonResponse(
@@ -32,3 +33,12 @@ class SafeView(TemplateView):
             response = _get_error_response(request, e)
         return response
     
+def safe_view(view):
+    ''' '''
+    @functools.wraps(view)
+    def inner(request, *args, **kwargs):
+        try:
+            return view(request, *args, **kwargs)
+        except Exception as e:
+            return _get_error_response(request, e)
+    return inner

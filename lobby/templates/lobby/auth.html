@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Log to {{pin}} {% endblock %}
+{% block additions %}
+    <link href="{% static "css/big_elements.css" %}" rel="stylesheet">
+{% endblock  %}
+
+
+{% block content %}
+    <h2 class="big-title"> Your docs </h2>
+    <h4 class="big-subtitle"> young people </h4>
+    <form class="big-form flex-center flex-column" action="" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" class="big-button", value="submit">
+    </form>
+{% endblock %}
