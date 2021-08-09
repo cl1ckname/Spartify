@@ -67,3 +67,9 @@ class Lobby(models.Model):
                 self.ban_list.remove(user)
         except User.DoesNotExist:
             raise ValidationError("Unban error")
+    
+    def leave(self, member: User):
+        self.num_members -= 1
+        member.lobby_in = None
+        self.save()
+        member.save()

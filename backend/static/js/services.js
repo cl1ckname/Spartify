@@ -12,7 +12,7 @@ export function ban(response) {
 export function add_user(data){
     var username = data['username'];
     var userid = data['userid'];
-    var li = $('<li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-'+userid+'">' + username + '</li>');
+    var li = $('<li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-'+userid+'"><p>' + username + '</p></li>');
     $("#list_members").prepend(li);
 }
 

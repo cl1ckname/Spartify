@@ -13,16 +13,9 @@ def _get_error_response(request: http.HttpRequest, e: Exception) -> http.respons
     if isinstance(e, AuthenticationError):
         api_logger.error(e, extra={'username': request.user.username, 'endpoint': e.endpoint, 'status_code': e.status})
         return redirect('authentication_error')
-    elif isinstance(e, RegularError):
+    else:
         api_logger.error(e, extra={'username': request.user.username, 'endpoint': e.endpoint, 'status_code': e.status})
         return render(request,'backend/500.html',status=500)
-    else:
-        if settings.DEBUG:
-            return http.response.JsonResponse(
-                {'errorMessage': str(traceback.format_exc())}, status = 400
-            )
-        else:
-            return render(request,'backend/500.html',status=500)
 
 class SafeView(TemplateView):
     ''' Process exceptions '''

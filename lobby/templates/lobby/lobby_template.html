@@ -11,29 +11,39 @@
 
 {% endblock %}
 {% block content %}
-    <div id="headers">
-        {% comment %} <h1> Lobby #{{lobby.id}} </h1> {% endcomment %}
-        {% comment %} <h1 style="color: #999999; margin-left: 5%"> Owner - {{owner}} </h1>
-        <h1 id="members_count">Members: {{lobby.num_members}}</h1> {% endcomment %}
-        <h1>
-            Lobby #{{lobby.id}}
-            <small class="text-muted">
-                Owner - {{owner}}
-            </small>
-            <small class="text-muted">
-                Members: {{lobby.num_members}}
-            </small>
-
-            <form action = "{{id}}" method="post" id = "delete">
-                {% if not is_owner %}
-                    {% csrf_token %}
-                    <button name="leave" value="{{request.user.id}}" type="submit">Leave</button>
-                {% else %}
-                    {% csrf_token %}
-                    <button name="delete" value="{{lobby.id}}" type="submit">Delete</button>
-                {% endif %}
-            </form>
-        </h1>
+    <div class="row" id="headers">
+        <div class="col-12 col-xl-3">
+            <h1>
+                Lobby #{{lobby.id}}
+            </h1>
+        </div>
+        <div class="col-12 col-xl-6">
+            <h2>
+                <small class="text-muted">
+                    Owner - {{owner}}
+                </small>
+            </h2>
+        </div>
+        <div class="col-12 col-xl-3" style="padding-right: 0;">
+            <div class="row">
+                <div class="col-6" style="padding-right: 0;">
+                    <h4 class="text-muted">
+                        Members: {{lobby.num_members}}
+                    </h4>
+                </div>
+                <div class="col-6">
+                    <form class="justify-content-end" action = "{{id}}" method="post" id = "delete">
+                        {% if not is_owner %}
+                            {% csrf_token %}
+                            <button name="leave" value="{{request.user.id}}" type="submit">Leave</button>
+                        {% else %}
+                            {% csrf_token %}
+                            <button name="delete" value="{{lobby.id}}" type="submit">Delete</button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
     {% if is_owner %}
         <div id = "switch">
@@ -85,7 +95,7 @@
                                 <ul class="list-group" id="list-members">
                                     {% for member in members %}
                                         <li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-{{member.id}}">
-                                            {{member.username}} {% if is_owner and lobby.owner.id != member.id %} <input class="form-check-input" type="checkbox" name = "to_delete" value = "{{member.id}}"> {% endif %}
+                                            <p>{{member.username}}</p> {% if is_owner and lobby.owner.id != member.id %} <input class="form-check-input" type="checkbox" name = "to_delete" value = "{{member.id}}"> {% endif %}
                                         </li>
                                     {% endfor %}
                                 </ul>

@@ -83,7 +83,7 @@
     padding: 0;
     display: flex;
     overflow: visible;
-    font-size: 0.6em;
+    font-size: 0.9em;
 }
 #delete button{
     position: relative;

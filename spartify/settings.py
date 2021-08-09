@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-
+from dotenv import load_dotenv
+load_dotenv()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -20,13 +21,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '-l^ge1pyto)t7*-g2c-5r-k$5p$z*r_vxj354k6&=4@^%5$jn%'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 1
+DEBUG = int(os.environ.get("DEBUG", default=1))
 
-# ALLOWED_HOSTS = ['192.168.43.72', 'localhost', '192.168.0.53']
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS",'').split(" ") + ['*', '192.168.43.72', '192.168.0.53', '0.0.0.0']
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -89,8 +89,12 @@ ASGI_APPLICATION = 'spartify.routing.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
 
@@ -132,13 +136,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = 'backend/static/'
+STATIC_URL = 'staticfiles/'
+STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 
 SOCIAL_AUTH_SPOTIFY_KEY = os.environ['SOCIAL_AUTH_SPOTIFY_KEY']  
 SOCIAL_AUTH_SPOTIFY_SECRET = os.environ['SOCIAL_AUTH_SPOTIFY_SECRET'] 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_SPOTIFY_SCOPE = ['user-read-email','user-read-private', 'user-read-playback-state', 'user-modify-playback-state']
+# SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'http://{}/complete/spotify/' % os.getenv('HOST')
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'
@@ -191,7 +196,7 @@ LOGGING = {
 }
 
 
-REDIS_HOST = '127.0.0.1'
+REDIS_HOST = os.environ.get("REDIS_HOST", '127.0.0.1')
 REDIS_PORT = 6379
 REDIS_DB = 0
 

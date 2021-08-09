@@ -26,7 +26,7 @@ Usually, in a large group of friends, exactly one person turns on the music. Thi
  - [ ] Creating a beautiful frontend
  - [ ] Upload the application to stable hosting
  - [ ] Play music in big campaigns with ease!
- - [ ] Build the application into a Docker container
+ - [x] Build the application into a Docker container
  - [ ] Realize API
  - [ ] ~~Make a lot of money~~
     - [ ] ~~Make a some money~~
@@ -35,7 +35,6 @@ Usually, in a large group of friends, exactly one person turns on the music. Thi
  - [ ] Add unusual statistic for users on dashboard
 
 ## Docker
-__At another branch!__  
 To build spartify into a docker container, you need to create file:
 .env.dev:
   ```

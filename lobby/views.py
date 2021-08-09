@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from lobby.services import _leave_from_lobby, _try_add_to_lobby
+from lobby.services import _try_add_to_lobby
 from .models import Lobby, User
 from backend.forms import AddTrackForm
 from lobby.forms import BanForm, JoinLobby, LobbyForm, MaxMembersForm, LobbyPassword
@@ -115,11 +115,12 @@ class LobbyView(SafeView):
             async_to_sync(self.channel_layer.group_send)(
                 channel_name, {'type': f'send_lobby', 'event':'unban', 'unbanned': to_unban})
         elif leave:
-            return _leave_from_lobby(leave)
+            self.this_lobby.leave(request.user)
+            return redirect('lobby')
         elif id_to_delete:
             if id_to_delete == str(self.this_lobby.id):
                 self.this_lobby.delete()
-                return redirect('/lobby')
+                return redirect('lobby')
 
         return self.display_page(request)
 

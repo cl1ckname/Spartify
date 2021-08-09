@@ -21,11 +21,5 @@ def _try_add_to_lobby(request):
         return render(request, 'lobby/lobby.html', data)
 
 
-def _leave_from_lobby(id: int):
-    member = User.objects.get(id=id)
-    member.lobby_in = None
-    member.save()
-    return redirect('/lobby')
-
 
 
