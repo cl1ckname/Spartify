@@ -9,5 +9,4 @@ urlpatterns = [
     path('devices', views.devices, name='devices'),
     path('ajax/add_queue', views.post_queue, name="post_queue"),
     path('authentication_error', views.authentication_error, name="authentication_error"),
-    path('server_error', views.server_error, name="server_error")
 ]

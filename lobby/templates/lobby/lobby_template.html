@@ -5,26 +5,45 @@
     <link href="{% static "css/lobby.css" %}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="{% static "js/services.js" %}"> </script>
+    <script src="{% static "js/websockets.js" %}" type="module"> </script>
     <script src="{% static "js/switch-menu.js" %}"> </script>
-    <script src="{% static "js/ajax_lobby_add_track.js" %}"> </script>
-    <script src="{% static "js/ajax_remove_members.js" %}"> </script>
-    <script src="{% static "js/ajax_ban_user.js" %}"> </script>
-    <script src="{% static "js/ajax_unban_users.js" %}"> </script>
+
 {% endblock %}
 {% block content %}
-    <div id="headers">
-        {% comment %} <h1> Lobby #{{lobby.id}} </h1> {% endcomment %}
-        {% comment %} <h1 style="color: #999999; margin-left: 5%"> Owner - {{owner}} </h1>
-        <h1 id="members_count">Members: {{lobby.num_members}}</h1> {% endcomment %}
-        <h1>
-             Lobby #{{lobby.id}}
-            <small class="text-muted">
-                Owner - {{owner}}
-            </small>
-            <small class="text-muted">
-                Members: {{lobby.num_members}}
-            </small>
-        </h1>
+    <div class="row" id="headers">
+        <div class="col-12 col-xl-3">
+            <h1>
+                Lobby #{{lobby.id}}
+            </h1>
+        </div>
+        <div class="col-12 col-xl-6">
+            <h2>
+                <small class="text-muted">
+                    Owner - {{owner}}
+                </small>
+            </h2>
+        </div>
+        <div class="col-12 col-xl-3" style="padding-right: 0;">
+            <div class="row">
+                <div class="col-6" style="padding-right: 0;">
+                    <h4 class="text-muted">
+                        Members: {{lobby.num_members}}
+                    </h4>
+                </div>
+                <div class="col-6">
+                    <form class="justify-content-end" action = "{{id}}" method="post" id = "delete">
+                        {% if not is_owner %}
+                            {% csrf_token %}
+                            <button name="leave" value="{{request.user.id}}" type="submit">Leave</button>
+                        {% else %}
+                            {% csrf_token %}
+                            <button name="delete" value="{{lobby.id}}" type="submit">Delete</button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
     {% if is_owner %}
         <div id = "switch">
@@ -35,9 +54,8 @@
     <div id="switch_box">
         <div class="row justify-content-between">
             <div class="container col-6 {% if request.GET.p == "settings" %} moveLeft {% endif %}" id="overview">
-                <div class="row" id = "lobby_container">
-                    <div class="col-10 col-lg-11 pb-2 mb-3">
-                        <p>Now playing: {{track}}</p>
+                <div class="row mb-3" id = "lobby_container">
+                    <div class="col-10 col-lg-5 col-xl-7 pb-2 mb-3">
                         <form id="add_track" method="post">
                             {{ form.as_p }}
                             {% csrf_token %}
@@ -45,20 +63,23 @@
                             <input type="submit" value="ADD"></input>
                         </form>
                     </div>
-                    <div class="col-2 col-lg-1 pb-2 mb-3" id = "delete">
-                        {% if is_owner %}
-                            <form action = "{{id}}" method="post">
-                                {% csrf_token %}
-                                <button name="delete" value="{{lobby.id}}" type="submit">Delete</button>
-                            </form>
-                        {% else %}
-                            <form action = "{{id}}" method="post">
-                                {% csrf_token %}
-                                <button name="leave" value="{{request.user.id}}" type="submit">Leave</button>
-                            </form>
-                        {% endif %}
+                    <div class="col-lg-7 col-xl-5 order-first order-lg-last">
+                        <div class="card text-center mt-1">
+                            <div class="card-header">Now playing</div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-8 border-end">
+                                            <h4 class="card-title">{{track.title|default:"Nothing"}}</h4>
+                                            <p class="card-text"> {{ track.show_artists|default:"absolutly" }} </p>
+                                        </div>
+                                        <div class="col-4">
+                                            <img src="{{track.image}}" alt="" class="card-img img-fluid" style="border-radius: 50%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
                 <div class="row justify-content-between" id="lobby_container">
                     <div class="col-md-6">
                         <form class = "ov-form" id="remove_members" method="post">
@@ -71,10 +92,10 @@
                                 {% endif %}
                             </div>
                             <div id="members">
-                                <ul class="list-group">
+                                <ul class="list-group" id="list-members">
                                     {% for member in members %}
                                         <li class="list-group-item d-flex justify-content-between list-group-item-light" id="li-{{member.id}}">
-                                            {{member.username}} {% if is_owner and lobby.owner.id != member.id %} <input class="form-check-input" type="checkbox" name = "to_delete" value = "{{member.id}}"> {% endif %}
+                                            <p>{{member.username}}</p> {% if is_owner and lobby.owner.id != member.id %} <input class="form-check-input" type="checkbox" name = "to_delete" value = "{{member.id}}"> {% endif %}
                                         </li>
                                     {% endfor %}
                                 </ul>
@@ -86,7 +107,7 @@
                             <h3> History </h3>
                         </div>
                         <div id="history">
-                            <ul class = "group-list" id="list-history">
+                            <ul class = "list-group" id="list-history">
                                 {% for song in history %}
                                     <li class="list-group-item list-group-item-action"> {{ song.title }} {{ song.date }} by {{song.user}} </li>
                                 {% endfor %}

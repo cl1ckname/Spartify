@@ -1,10 +1,11 @@
 import traceback
+import functools
 from logging import getLogger
 from django import http
 from django.views.generic.base import TemplateView
-from django.shortcuts import redirect
-from django.conf import settings
+from django.shortcuts import redirect, render
 from .SpotifyAPI.api_errors import AuthenticationError, RegularError
+from django.conf import settings
 
 api_logger = getLogger(__name__)
 
@@ -12,18 +13,9 @@ def _get_error_response(request: http.HttpRequest, e: Exception) -> http.respons
     if isinstance(e, AuthenticationError):
         api_logger.error(e, extra={'username': request.user.username, 'endpoint': e.endpoint, 'status_code': e.status})
         return redirect('authentication_error')
-    elif isinstance(e, RegularError):
-        api_logger.error(e, extra={'username': request.user.username, 'endpoint': e.endpoint, 'status_code': e.status})
-        return redirect('server_error')
     else:
-        if settings.DEBUG:
-            return http.response.JsonResponse(
-                {'errorMessage': str(traceback.format_exc())}, status = 400
-            )
-        else:
-            return http.response.JsonResponse(
-                {'errorMessage': 'Some inner error'}, status = 400
-            )
+        api_logger.error(e, extra={'username': request.user.username, 'endpoint': e.endpoint, 'status_code': e.status})
+        return render(request,'backend/500.html',status=500)
 
 class SafeView(TemplateView):
     ''' Process exceptions '''
@@ -34,3 +26,12 @@ class SafeView(TemplateView):
             response = _get_error_response(request, e)
         return response
     
+def safe_view(view):
+    ''' '''
+    @functools.wraps(view)
+    def inner(request, *args, **kwargs):
+        try:
+            return view(request, *args, **kwargs)
+        except Exception as e:
+            return _get_error_response(request, e)
+    return inner

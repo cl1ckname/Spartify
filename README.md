@@ -12,11 +12,17 @@ Usually, in a large group of friends, exactly one person turns on the music. Thi
 
 ## To do
 
+ - [x] Append README.md
  - [x] Add the ability to add tracks to your queue using the site
  - [x] Ability to create a lobby and get a pin code for it
  - [x] Add settings for lobbies
+    - [ ] Add more settings to lobbies
+       - [ ] Ban list for tracks
+       - [ ] Limit on the number of tracks for each user
+ - [x] Registration for premium Spotify users and simple users 
+ - [ ] Add votes for the next track
+ - [ ] Add lobby privileges
  - [ ] Ability add playlists and albums to queue
- - [ ] Registration for premium Spotify users and simple users 
  - [ ] Creating a beautiful frontend
  - [ ] Upload the application to stable hosting
  - [ ] Play music in big campaigns with ease!
@@ -25,7 +31,8 @@ Usually, in a large group of friends, exactly one person turns on the music. Thi
  - [ ] ~~Make a lot of money~~
     - [ ] ~~Make a some money~~
         - [x] ~~Make a little money~~
- - [x] Append README.md
+ - [ ] Write a lot of tests
+ - [ ] Add unusual statistic for users on dashboard
 
 ## Docker
 To build spartify into a docker container, you need to create file:

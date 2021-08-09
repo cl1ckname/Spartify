@@ -65,9 +65,10 @@
 }
 #headers{
     display: flex;
-    border-bottom: 1px solid #bbb;
+    border-bottom: 1px solid #bbb
 }
 #headers h1{
+    font-size: 2em;
     margin-bottom: 0;
     border-bottom: hidden;
     display: inline-flex;
@@ -81,12 +82,11 @@
 #delete{
     padding: 0;
     display: flex;
-    align-self: flex-end;
+    overflow: visible;
+    font-size: 0.9em;
 }
 #delete button{
     position: relative;
-    bottom: 0;
-    font-weight: bold;
     background: #c01212;
     color: #fff;
     padding: 10px 10px;

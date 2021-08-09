@@ -1,15 +1,22 @@
 .big-title {
     font-size: 6em;
-    margin: 2em 0 1em;
+    margin: 1.5em 0 .1em;
     text-align: center;
     text-transform: uppercase;
+}
+.big-subtitle {
+    font-size: 3em;
+    margin: 0 0 0.9em;
+    text-align: center;
+    text-transform: uppercase;
+    color: #aaa
 }
 .header-text {
     font-size: 2em;
     font-weight: 100;
     text-align: center;
 }
-.big_button {
+.big-button {
     font-size: 3.5em;
     padding: 0 .7em 0;
     font-weight: bold;
@@ -19,10 +26,26 @@
     background: #1DB954;
     color: #fff;
 }
+.big-form {
+    text-align: center;
+}
+.big-form label{
+    font-size: 3.5em;
+    font-weight: bold;
+}
+.big-form input[type=password]{
+    font-size: 2em;
+    text-align: center;
+}
+.big-form input[type=submit],.big-form input[type=button]{
+    align-self: center;
+    margin-top: 0.3em;
+}
 .flex-center {
     display: flex;
     justify-content: center;
 }
+
 .content {
     padding: 3em 4em;
 }

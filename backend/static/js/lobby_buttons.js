@@ -1,10 +1,8 @@
 
 $(document).ready(function(){
-    console.log("132323");
     var baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname+window.location.search;
     var url = new URL(baseUrl);
     var p = url.searchParams.get("p");
-    console.log(url)
     var choose = $("#buttons")[0];
     if (p=="create"){
         choose.style.display = "none";

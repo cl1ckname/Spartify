@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-
+from dotenv import load_dotenv
+load_dotenv()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("DEBUG", default=0))
+DEBUG = int(os.environ.get("DEBUG", default=1))
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ") + ['192.168.43.72', '192.168.0.53', '0.0.0.0']
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS",'').split(" ") + ['*', '192.168.43.72', '192.168.0.53', '0.0.0.0']
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'social_django',
     'backend',
     'lobby'
@@ -79,6 +81,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'spartify.wsgi.application'
+ASGI_APPLICATION = 'spartify.routing.application'
 
 
 # Database
@@ -133,13 +136,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_URL = 'staticfiles'
+STATIC_URL = 'staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 
 SOCIAL_AUTH_SPOTIFY_KEY = os.environ['SOCIAL_AUTH_SPOTIFY_KEY']  
 SOCIAL_AUTH_SPOTIFY_SECRET = os.environ['SOCIAL_AUTH_SPOTIFY_SECRET'] 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_SPOTIFY_SCOPE = ['user-read-email','user-read-private', 'user-read-playback-state', 'user-modify-playback-state']
+# SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'http://{}/complete/spotify/' % os.getenv('HOST')
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'
@@ -171,6 +175,10 @@ LOGGING = {
             'format': '{username} -- {endpoint} -- {status_code:d}: {message}',
             'style': '{',
         },
+        'lobby_formatter': {
+            'format': '{id}--{username}: {message} -- {asctime}',
+            'style': '{',
+        },
     },
     'handlers': {
         'api_errors': {
@@ -185,4 +193,18 @@ LOGGING = {
             'handlers': ['api_errors'],
         },
     },
+}
+
+
+REDIS_HOST = os.environ.get("REDIS_HOST", '127.0.0.1')
+REDIS_PORT = 6379
+REDIS_DB = 0
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        "CONFIG": {
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
+        },
+    }
 }

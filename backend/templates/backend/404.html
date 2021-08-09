@@ -1,0 +1,19 @@
+{% load static %}
+<html>
+    <head>
+        <link href="{% static "css/base.css" %}" rel="stylesheet">
+        <link href="{% static "css/big_elements.css" %}" rel="stylesheet">
+    </head>
+</html>
+<body>
+    <div class="content">
+        <h2 class="big-title">Oh no it's <b>404 ERROR</b> </h2>
+        <p class="header-text">
+            Well, who is to blame for this? Come on, you will check the address of the page, and we will not do anything. And in general - use only the buttons.
+            <a href="{% url "dashboard" %}">Come on to some lobby</a>.
+        </p>
+        <div class="flex-center">
+             <a href="{% url "dashboard" %}"> <button class="big-button">Сlear</button> </a>
+        </div>
+    </div>
+</body>

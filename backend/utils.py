@@ -2,27 +2,28 @@
 
 import re
 
-def track_full_name(track: dict) -> str:
+def track_name_parts(track: dict) -> tuple:
     ''' makes a good string - song title 
         track - response of SpotifyApi.get_track() or SpotifyApi.get_user_playback()'''
     if 'item' in track.keys():
         name = ''
         for artist in track['item']['artists']:
             name += artist['name'] + ', '
-        name = name[:-2] + ' - ' + track['item']['name']
+        return (name[:-2], track['item']['name'])
     elif track:
         name = ''
         for artist in track['artists']:
             name += artist['name'] + ', '
-        name = name[:-2] + ' - ' + track['name']
+        return name[:-2], track['name']
     else:
-        name = 'Nothing'
-    return name
+        return 'Nothing', None
 
+def track_to_string(track: tuple):
+    return track[0] + '-' + track[1]
 
 def clear_track(link: str) -> str:
     ''' Returns id of track from link '''
-    pattern = r'(https:\/\/open\.spotify\.com\/track\/)([0-9a-zA-Z]*)(\?si=[0-9a-z]*)'
+    pattern = r'(https:\/\/open\.spotify\.com\/track\/)([0-9a-zA-Z]*)(\?si=[0-9a-z]*)?'
     result = re.search(pattern, link)
     if not result:
         raise ValueError

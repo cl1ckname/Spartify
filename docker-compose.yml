@@ -10,7 +10,7 @@ services:
     expose:
       - 8000
     env_file:
-      - ./.env.dev
+      - ./spartify/.env
     depends_on:
       - db
   db:
@@ -18,9 +18,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./.env.prod.db
+      - ./spartify/.env
+  redis:
+    image: redis:latest
+    ports: 
+      - 6379:6379
+    volumes:
+      - redisdata:/data
   nginx:
-    build: ./nginx
+    build: 
+      context: ./nginx
+      args:
+        EXTERNAL_PORT: 1337
+    environment:
+      EXTERNAL_PORT: 1337
     volumes:
       - static_volume:/usr/src/app/staticfiles
     ports:
@@ -30,3 +41,4 @@ services:
 volumes: 
     postgres_data:
     static_volume:
+    redisdata:
